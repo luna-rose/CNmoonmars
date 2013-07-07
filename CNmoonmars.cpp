@@ -19,7 +19,7 @@ void PrintCoord(HotspotCoordsWithDate coord, void* data) {
 }
 
 int main(int argc, char* argv[]) {
-	int gridRes = 10;
+	int gridRes = 5;
 	int increment = 1;
 #ifdef using_parallel
 	int interval = omp_get_max_threads();
