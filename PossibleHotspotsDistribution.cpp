@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cmath>
 #include "PossibleHotspotsDistribution.h"
 
 PossibleHotspotsDistribution::PossibleHotspotsDistribution(AbcdSpaceLimits limits, AbcdSpaceProbabilityDistribution* abcdDistribution) {
@@ -16,16 +17,19 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots obse
 	int LimitCount = HotspotCoords::NumLats*HotspotCoords::NumLongs*gridRes;
 	
 	AbcdSpaceLimitsInt abcdSpaceLimits = limits.GenerateAbcdSpaceLimitsInt(gridRes);
-	int numChunks = (abcdSpaceLimits.limits[1][0] + abcdSpaceLimits.limits[0][1] - LimitCount - 1)/(increment*interval);
+	int minBa = LimitCount - abcdSpaceLimits.limits[0][1];
+	int maxBa = abcdSpaceLimits.limits[1][0];
+	
+	int numChunks = ceil((double)((maxBa - minBa - 1)/increment)/interval);
 	
 	AbcdSpaceLimitsInt partialSpaceLimits = abcdSpaceLimits;
 	partialSpaceLimits.limits[1][0] = LimitCount - partialSpaceLimits.limits[0][1] + increment*interval + 1;
 	
 	int chunkCount = 0;
 	long int pointCount = 0;
-	while (LimitCount - partialSpaceLimits.limits[0][1] + 1 < abcdSpaceLimits.limits[1][0]) {
-		if(partialSpaceLimits.limits[1][0] > abcdSpaceLimits.limits[1][0])
-			partialSpaceLimits.limits[1][0] = abcdSpaceLimits.limits[1][0];
+	while (LimitCount - partialSpaceLimits.limits[0][1] + increment < maxBa) {
+		if(partialSpaceLimits.limits[1][0] > maxBa)
+			partialSpaceLimits.limits[1][0] = maxBa;
 		
 		AbcdSpaceProbabilityDistribution* abcdDistribution;
 		abcdDistribution = new AbcdSpaceProbabilityDistribution(observedHotspots, partialSpaceLimits, gridRes, increment, false);

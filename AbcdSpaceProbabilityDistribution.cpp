@@ -112,12 +112,14 @@ void AbcdSpaceProbabilityDistribution::CalculateProbabilityDistribution(Observed
 				int minDa = LimitCount - limsInt.limits[0][3]; 
 				int maxDa = limsInt.limits[3][0];
 				
-				if(LimitCount - limsInt.limits[1][3] + ba > minDa)
-					minDa = LimitCount - limsInt.limits[1][3] + ba;
+				int value = LimitCount - limsInt.limits[1][3] + ba;
+				if(value > minDa)
+					minDa += increment*((value - minDa)/increment);
 				if(limsInt.limits[3][1] + ba < maxDa)
 					maxDa = limsInt.limits[3][1] + ba;
-				if(LimitCount - limsInt.limits[2][3] + ca >minDa)
-					minDa = LimitCount - limsInt.limits[2][3] + ca;
+				value = LimitCount - limsInt.limits[2][3] + ca;
+				if(value > minDa)
+					minDa += increment*((value - minDa)/increment);
 				if(limsInt.limits[3][2] + ca < maxDa)
 					maxDa = limsInt.limits[3][2] + ca;
 				
@@ -181,12 +183,14 @@ long int AbcdSpaceProbabilityDistribution::CalculateNumberOfAbcdPoints(AbcdSpace
 				int minDa = LimitCount - limsInt.limits[0][3]; 
 				int maxDa = limsInt.limits[3][0];
 				
-				if(LimitCount - limsInt.limits[1][3] + ba > minDa)
-					minDa = LimitCount - limsInt.limits[1][3] + ba;
+				int value = LimitCount - limsInt.limits[1][3] + ba;
+				if(value > minDa)
+					minDa += increment*((value - minDa)/increment);
 				if(limsInt.limits[3][1] + ba < maxDa)
 					maxDa = limsInt.limits[3][1] + ba;
-				if(LimitCount - limsInt.limits[2][3] + ca >minDa)
-					minDa = LimitCount - limsInt.limits[2][3] + ca;
+				value = LimitCount - limsInt.limits[2][3] + ca;
+				if(value > minDa)
+					minDa += increment*((value - minDa)/increment);
 				if(limsInt.limits[3][2] + ca < maxDa)
 					maxDa = limsInt.limits[3][2] + ca;
 					
