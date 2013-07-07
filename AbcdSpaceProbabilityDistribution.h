@@ -2,6 +2,7 @@
 #define __ABCD_SPACE_PROBABILITY_DISTRIBUTION__
 
 
+#include <vector>
 #include "ObservedHotspots.h"
 #include "AbcdSpaceLimits.h"
 
@@ -15,7 +16,7 @@ public:
 	
 	double CalculateHotspotProbability(const HotspotCoords coord, double prob = 0);
 	
-	static long int CalculateNumberOfAbcdPoints(AbcdSpaceLimits limsInt, int gridRes, int increment);
+	static long int CalculateNumberOfAbcdPoints(AbcdSpaceLimits limits, int gridRes, int increment);
 	
 	long int GetNumPoints();
 
@@ -39,6 +40,8 @@ private:
 	void CalculateProbabilityDistribution(ObservedHotspots observedHotspots, AbcdSpaceLimits limits, int gridRes, int increment, bool normalize = true);
 	void CalculateProbabilityDistribution(ObservedHotspots observedHotspots, AbcdSpaceLimitsInt limits, int gridRes, int increment, bool normalize = true);
 	void static CalculateProbSingleHotspot(HotspotCoordsWithDate coord, void* data);
+	
+	static long int CalculateNumberOfAbcdPoints(AbcdSpaceLimitsInt limsInt, int gridRes, int increment, std::vector<long int>* starts);
 	
 	AbcdSpacePoint* probPoints;
 	long int numProbPoints;

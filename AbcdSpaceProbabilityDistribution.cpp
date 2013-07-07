@@ -103,31 +103,8 @@ void AbcdSpaceProbabilityDistribution::CalculateProbabilityDistribution(Observed
 																		int gridRes, int increment, bool normalize) {
 	int LimitCount = HotspotCoords::NumLats*HotspotCoords::NumLongs*gridRes;
 	
-	long int count = 0;
-	std::vector<long int> starts;	
-	for (int ba = LimitCount - limsInt.limits[0][1] + increment; ba < limsInt.limits[1][0]; ba += increment) {
-		starts.push_back(count);
-		for (int ca = LimitCount - limsInt.limits[0][2] + increment; ca < limsInt.limits[2][0]; ca += increment) {
-			if (ca-ba > LimitCount - limsInt.limits[1][2] && ca-ba < limsInt.limits[2][1]){
-				int minDa = LimitCount - limsInt.limits[0][3]; 
-				int maxDa = limsInt.limits[3][0];
-				
-				int value = LimitCount - limsInt.limits[1][3] + ba;
-				if(value > minDa)
-					minDa += increment*((value - minDa)/increment);
-				if(limsInt.limits[3][1] + ba < maxDa)
-					maxDa = limsInt.limits[3][1] + ba;
-				value = LimitCount - limsInt.limits[2][3] + ca;
-				if(value > minDa)
-					minDa += increment*((value - minDa)/increment);
-				if(limsInt.limits[3][2] + ca < maxDa)
-					maxDa = limsInt.limits[3][2] + ca;
-				
-				count += (maxDa-minDa-1)/increment;
-			}
-		}
-	}
-	numProbPoints = count;
+	std::vector<long int> starts;
+	numProbPoints = CalculateNumberOfAbcdPoints(limsInt, gridRes, increment, &starts);
 
 	probPoints = new AbcdSpacePoint[numProbPoints];
 	
@@ -173,11 +150,17 @@ void AbcdSpaceProbabilityDistribution::CalculateProbabilityDistribution(Observed
 }
 
 long int AbcdSpaceProbabilityDistribution::CalculateNumberOfAbcdPoints(AbcdSpaceLimits limits, int gridRes, int increment) {
-	int LimitCount = HotspotCoords::NumLats*HotspotCoords::NumLongs*gridRes;
 	AbcdSpaceLimitsInt limsInt = limits.GenerateAbcdSpaceLimitsInt(gridRes);
+	return CalculateNumberOfAbcdPoints(limsInt, gridRes, increment, NULL);
+}
+
+long int AbcdSpaceProbabilityDistribution::CalculateNumberOfAbcdPoints(AbcdSpaceLimitsInt limsInt, int gridRes, int increment, std::vector<long int>* starts) {
+	int LimitCount = HotspotCoords::NumLats*HotspotCoords::NumLongs*gridRes;
 	
 	long int count = 0;
 	for (int ba = LimitCount - limsInt.limits[0][1] + increment; ba < limsInt.limits[1][0]; ba += increment) {
+		if (starts!=NULL)
+			starts->push_back(count);
 		for (int ca = LimitCount - limsInt.limits[0][2] + increment; ca < limsInt.limits[2][0]; ca += increment) {
 			if (ca-ba > LimitCount - limsInt.limits[1][2] && ca-ba < limsInt.limits[2][1]){
 				int minDa = LimitCount - limsInt.limits[0][3]; 
