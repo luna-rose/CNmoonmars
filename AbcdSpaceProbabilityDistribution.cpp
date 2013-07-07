@@ -58,7 +58,7 @@ Double AbcdSpaceProbabilityDistribution::CalculateHotspotProbability(const Hotsp
 		int longScale = LimitCount/HotspotCoords::NumLongs;
 		
 		int xmin = -latScale/2;
-		int xmax = latScale/2 + 1;
+		int xmax = latScale - latScale/2;
 		
 		int a = coord.moonLat*latScale;
 		int b = a + point.ba;
@@ -66,34 +66,34 @@ Double AbcdSpaceProbabilityDistribution::CalculateHotspotProbability(const Hotsp
 		int d = a + point.da;
 		
 		int bxmin = coord.moonLong*longScale - longScale/2 - b;
-		int bxmax = coord.moonLong*longScale + longScale/2 + 1 - b;
-		while (bxmin > LimitCount/2 + 1) bxmin -= LimitCount;
-		while (bxmax > LimitCount/2 + 1) bxmax -= LimitCount;
+		int bxmax = coord.moonLong*longScale + longScale - longScale/2 - b;
+		while (bxmin > LimitCount - LimitCount/2) bxmin -= LimitCount;
+		while (bxmax > LimitCount - LimitCount/2) bxmax -= LimitCount;
 		while (bxmin < -LimitCount/2) bxmin += LimitCount;
 		while (bxmax < -LimitCount/2) bxmax += LimitCount;
 		if(bxmin > xmin) xmin = bxmin;
 		if(bxmax < xmax) xmax = bxmax;
 		
 		int cxmin = coord.marsLat*latScale - latScale/2 - c;
-		int cxmax = coord.marsLat*latScale + latScale/2 + 1 - c;
-		while (cxmin > LimitCount/2 + 1) cxmin -= LimitCount;
-		while (cxmax > LimitCount/2 + 1) cxmax -= LimitCount;
+		int cxmax = coord.marsLat*latScale + latScale - latScale/2 - c;
+		while (cxmin > LimitCount - LimitCount/2) cxmin -= LimitCount;
+		while (cxmax > LimitCount - LimitCount/2) cxmax -= LimitCount;
 		while (cxmin < -LimitCount/2) cxmin += LimitCount;
 		while (cxmax < -LimitCount/2) cxmax += LimitCount;
 		if(cxmin > xmin) xmin = cxmin;
 		if(cxmax < xmax) xmax = cxmax;
 		
 		int dxmin = coord.marsLong*longScale - longScale/2 - d;
-		int dxmax = coord.marsLong*longScale + longScale/2 + 1 - d;
-		while (dxmin > LimitCount/2 + 1) dxmin -= LimitCount;
-		while (dxmax > LimitCount/2 + 1) dxmax -= LimitCount;
+		int dxmax = coord.marsLong*longScale + longScale - longScale/2 - d;
+		while (dxmin > LimitCount - LimitCount/2) dxmin -= LimitCount;
+		while (dxmax > LimitCount - LimitCount/2) dxmax -= LimitCount;
 		while (dxmin < -LimitCount/2) dxmin += LimitCount;
 		while (dxmax < -LimitCount/2) dxmax += LimitCount;
 		if(dxmin > xmin) xmin = dxmin;
 		if(dxmax < xmax) xmax = dxmax;
 		
 		if(xmax>xmin)
-			prob += (point.prob*(xmax-xmin))/LimitCount;
+			prob += point.prob*(xmax-xmin);
 	}
 	
 	return prob;
@@ -205,7 +205,7 @@ void AbcdSpaceProbabilityDistribution::CalculateProbSingleHotspot(HotspotCoordsW
 		return;
 	
 	int xmin = -latScale/2;
-	int xmax = latScale/2 + 1;
+	int xmax = latScale - latScale/2;
 	
 	int a = coord.moonLat*latScale;
 	int b = a + point->ba;
@@ -219,9 +219,9 @@ void AbcdSpaceProbabilityDistribution::CalculateProbSingleHotspot(HotspotCoordsW
 	
 	if (coord.moonLong != HotspotCoords::MissingCoord) {
 		int bxmin = coord.moonLong*longScale - longScale/2 - b;
-		int bxmax = coord.moonLong*longScale + longScale/2 + 1 - b;
-		while (bxmin > LimitCount/2 + 1) bxmin -= LimitCount;
-		while (bxmax > LimitCount/2 + 1) bxmax -= LimitCount;
+		int bxmax = coord.moonLong*longScale + longScale - longScale/2 - b;
+		while (bxmin > LimitCount - LimitCount/2) bxmin -= LimitCount;
+		while (bxmax > LimitCount - LimitCount/2) bxmax -= LimitCount;
 		while (bxmin < -LimitCount/2) bxmin += LimitCount;
 		while (bxmax < -LimitCount/2) bxmax += LimitCount;
 		if(bxmin > xmin) xmin = bxmin;
@@ -229,9 +229,9 @@ void AbcdSpaceProbabilityDistribution::CalculateProbSingleHotspot(HotspotCoordsW
 	}
 	if (coord.marsLat != HotspotCoords::MissingCoord) {
 		int cxmin = coord.marsLat*latScale - latScale/2 - c;
-		int cxmax = coord.marsLat*latScale + latScale/2 + 1 - c;
-		while (cxmin > LimitCount/2 + 1) cxmin -= LimitCount;
-		while (cxmax > LimitCount/2 + 1) cxmax -= LimitCount;
+		int cxmax = coord.marsLat*latScale + latScale - latScale/2 - c;
+		while (cxmin > LimitCount - LimitCount/2) cxmin -= LimitCount;
+		while (cxmax > LimitCount - LimitCount/2) cxmax -= LimitCount;
 		while (cxmin < -LimitCount/2) cxmin += LimitCount;
 		while (cxmax < -LimitCount/2) cxmax += LimitCount;
 		if(cxmin > xmin) xmin = cxmin;
@@ -239,9 +239,9 @@ void AbcdSpaceProbabilityDistribution::CalculateProbSingleHotspot(HotspotCoordsW
 	}
 	if (coord.marsLong != HotspotCoords::MissingCoord) {
 		int dxmin = coord.marsLong*longScale - longScale/2 - d;
-		int dxmax = coord.marsLong*longScale + longScale/2 + 1 - d;
-		while (dxmin > LimitCount/2 + 1) dxmin -= LimitCount;
-		while (dxmax > LimitCount/2 + 1) dxmax -= LimitCount;
+		int dxmax = coord.marsLong*longScale + longScale - longScale/2 - d;
+		while (dxmin > LimitCount - LimitCount/2) dxmin -= LimitCount;
+		while (dxmax > LimitCount - LimitCount/2) dxmax -= LimitCount;
 		while (dxmin < -LimitCount/2) dxmin += LimitCount;
 		while (dxmax < -LimitCount/2) dxmax += LimitCount;
 		if(dxmin > xmin) xmin = dxmin;
