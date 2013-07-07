@@ -12,8 +12,9 @@
 *.la
 *.a
 
-# Compiled Binary
+# Compiled Binaries
 CNmoonmars
+CNmoonmarsCountPoints
 
 # Backup Makefile
 Makefile.bak
