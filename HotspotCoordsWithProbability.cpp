@@ -1,0 +1,2 @@
+#include "HotspotCoordsWithProbability.h"
+
