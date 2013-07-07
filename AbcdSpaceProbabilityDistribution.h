@@ -23,19 +23,24 @@ public:
 
 private:
 	struct AbcdSpacePoint {
-		Double ba;
-		Double ca;
-		Double da;
+		int ba;
+		int ca;
+		int da;
 		Double prob;
 		
 		AbcdSpacePoint(){}
 		
-		AbcdSpacePoint(Double inBa, Double inCa, Double inDa, Double inProb){
+		AbcdSpacePoint(int inBa, int inCa, int inDa, Double inProb){
 			ba = inBa;
 			ca = inCa;
 			da = inDa;
 			prob = inProb;
 		}
+	};
+	
+	struct AbcdSpacePointWithLimitCount {
+		AbcdSpacePoint* point;
+		int LimitCount;
 	};
 	
 	void CalculateProbabilityDistribution(ObservedHotspots observedHotspots, AbcdSpaceLimits limits, int gridRes, int increment, bool normalize = true);
@@ -46,6 +51,7 @@ private:
 	
 	AbcdSpacePoint* probPoints;
 	long int numProbPoints;
+	int LimitCount;
 };
 
 
