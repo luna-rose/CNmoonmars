@@ -16,9 +16,12 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots obse
 	int LimitCount = HotspotCoords::NumLats*HotspotCoords::NumLongs*gridRes;
 	
 	AbcdSpaceLimitsInt abcdSpaceLimits = limits.GenerateAbcdSpaceLimitsInt(gridRes);
+	int numChunks = (abcdSpaceLimits.limits[1][0] + abcdSpaceLimits.limits[0][1] - LimitCount - 1)/(increment*interval);
+	
 	AbcdSpaceLimitsInt partialSpaceLimits = abcdSpaceLimits;
 	partialSpaceLimits.limits[1][0] = LimitCount - partialSpaceLimits.limits[0][1] + increment*interval + 1;
 	
+	int chunkCount = 0;
 	long int pointCount = 0;
 	while (LimitCount - partialSpaceLimits.limits[0][1] + 1 < abcdSpaceLimits.limits[1][0]) {
 		if(partialSpaceLimits.limits[1][0] > abcdSpaceLimits.limits[1][0])
@@ -27,9 +30,11 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots obse
 		AbcdSpaceProbabilityDistribution* abcdDistribution;
 		abcdDistribution = new AbcdSpaceProbabilityDistribution(observedHotspots, partialSpaceLimits, gridRes, increment, false);
 		AccumulateProbabilities(abcdDistribution);	
-		pointCount += abcdDistribution->GetNumPoints();
 		
-		printf("Current chunk points: %8ld,     Total points: %11ld\n", abcdDistribution->GetNumPoints(), pointCount);
+		pointCount += abcdDistribution->GetNumPoints();
+		chunkCount ++;
+		printf("Chunk %4d of %4d,     Chunk points: %9ld,     Total points: %12ld\n", 
+			   chunkCount, numChunks, abcdDistribution->GetNumPoints(), pointCount);
 		
 		delete(abcdDistribution);
 		
@@ -38,8 +43,12 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots obse
 	}
 	printf("\nTotal points in the probability distribution: %ld.\n", pointCount);
 	
+	if (chunkCount != numChunks) {
+		printf("!!! ERROR: PRECOMPUTED CHUNK COUNT, %d, DOES NOT MATCH ACTUAL CHUNK COUNT, %d !!!\n\n", 
+			   numChunks, chunkCount);
+	}
 	if (pointCount != preCalcNumPoints) {
-		printf("!!! ERROR: PRECOMPUTED POINTS, %ld, DO NOT MATCH ACTUAL POINTS, %ld !!!\n\n", 
+		printf("!!! ERROR: PRECOMPUTED POINT COUNT, %ld, DOES NOT MATCH ACTUAL POINT COUNT, %ld !!!\n\n", 
 			   preCalcNumPoints, pointCount);
 	}
 	
