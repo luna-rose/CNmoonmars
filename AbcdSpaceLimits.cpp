@@ -5,7 +5,7 @@
 AbcdSpaceLimits::AbcdSpaceLimits(ObservedHotspots observedHotspots) {
 	for (int i = 0 ; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
-			limits[i][j] = std::numeric_limits<double>::infinity();
+			limits[i][j] = std::numeric_limits<Double>::infinity();
 		}
 	}
 	
@@ -33,8 +33,8 @@ void AbcdSpaceLimits::PrintToFile(FILE* file){
 	
 	for (int i = 0 ; i < 4; i++) {
 		for (int j = i+1; j < 4; j++) {
-			fprintf(file, "%c_%c_min = %.17g\n", letter[j], letter[i], 1-limits[i][j]);
-			fprintf(file, "%c_%c_max = %.17g\n", letter[j], letter[i], limits[j][i]);
+			fprintf(file, "%c_%c_min = %.36Lg\n", letter[j], letter[i], 1-limits[i][j]);
+			fprintf(file, "%c_%c_max = %.36Lg\n", letter[j], letter[i], limits[j][i]);
 		}
 	}
 }
@@ -58,7 +58,7 @@ bool AbcdSpaceLimits::CheckHotspot(HotspotCoords coord) {
 		if (coordArray[i] != HotspotCoords::MissingCoord) {
 			for (int j = 0; j < 4; j++) {
 				if (i!=j && coordArray[j] != HotspotCoords::MissingCoord) {
-					double newLimit = (coordArray[i]+0.5)/numCoordsArray[i] - (coordArray[j]-0.5)/numCoordsArray[j];
+					Double newLimit = (coordArray[i]+0.5)/numCoordsArray[i] - (coordArray[j]-0.5)/numCoordsArray[j];
 					while (newLimit < 0) newLimit += 1.0;
 					while (newLimit >= 1.0) newLimit -= 1.0;
 					int LimitFactor = HotspotCoords::NumLats*HotspotCoords::NumLongs;
@@ -79,7 +79,7 @@ bool AbcdSpaceLimits::CheckHotspot(HotspotCoords coord) {
 }
 
 void AbcdSpaceLimits::AdjustLimitsSingleHotspot(HotspotCoordsWithDate coord, void* data) {
-	double (*limits)[4] = (double(*)[4])data; 
+	Double (*limits)[4] = (Double(*)[4])data;
 	
 	Coord* coordArray = coord.GetCoordArray();
 	const short* numCoordsArray = HotspotCoords::GetNumCoordsArray();
@@ -88,7 +88,7 @@ void AbcdSpaceLimits::AdjustLimitsSingleHotspot(HotspotCoordsWithDate coord, voi
 		if (coordArray[i] != HotspotCoords::MissingCoord) {
 			for (int j = 0; j < 4; j++) {
 				if (coordArray[j] != HotspotCoords::MissingCoord) {
-					double newLimit = (coordArray[i]+0.5)/numCoordsArray[i] - (coordArray[j]-0.5)/numCoordsArray[j];
+					Double newLimit = (coordArray[i]+0.5)/numCoordsArray[i] - (coordArray[j]-0.5)/numCoordsArray[j];
 					while (newLimit < 0) newLimit += 1.0;
 					while (newLimit >= 1.0) newLimit -= 1.0;
 					if(newLimit < limits[i][j])
@@ -110,7 +110,7 @@ void AbcdSpaceLimits::PairwiseCombineLimits() {
 		for (int i = 0 ; i < 4; i++) {
 			for (int j = 0; j < 4; j++) {
 				for (int k = 0; k < 4; k++) {
-					double newLimit = limits[i][k] + limits[k][j];
+					Double newLimit = limits[i][k] + limits[k][j];
 					while (newLimit < 0) newLimit += 1.0;
 					while (newLimit >= 1.0) newLimit -= 1.0;
 					if(newLimit < limits[i][j]) {

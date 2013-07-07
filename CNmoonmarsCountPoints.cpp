@@ -1,18 +1,9 @@
 #include <cstdio>
 #include <cstdlib>
+#include "Common.h"
 #include "ObservedHotspots.h"
 #include "AbcdSpaceLimits.h"
 #include "AbcdSpaceProbabilityDistribution.h"
-
-void PrintCoord(HotspotCoordsWithDate coord, void* data) {
-	printf("%5d, %5d, %5d, %5d, %5d, %5d\n", 
-		   coord.month.value, 
-		   coord.year,
-		   coord.moonLat,
-		   coord.moonLong,
-		   coord.marsLat,
-		   coord.marsLong);
-}
 
 int main(int argc, char* argv[]) {
 	int gridRes = 5;

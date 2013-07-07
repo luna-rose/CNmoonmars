@@ -20,7 +20,7 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots obse
 	int minBa = LimitCount - abcdSpaceLimits.limits[0][1];
 	int maxBa = abcdSpaceLimits.limits[1][0];
 	
-	int numChunks = ceil((double)((maxBa - minBa - 1)/increment)/interval);
+	int numChunks = ceil((Double)((maxBa - minBa - 1)/increment)/interval);
 	
 	AbcdSpaceLimitsInt partialSpaceLimits = abcdSpaceLimits;
 	partialSpaceLimits.limits[1][0] = LimitCount - partialSpaceLimits.limits[0][1] + increment*interval + 1;
@@ -134,7 +134,7 @@ void PossibleHotspotsDistribution::PrintToFile(const char* filename){
 	
 	for(std::vector<HotspotCoordsWithProbability>::iterator it = possibleHotspots.begin(); it<possibleHotspots.end(); it++){
 		HotspotCoordsWithProbability coords = *it;
-		fprintf(file, "%6d%6d%6d%6d%28.18le\n", coords.moonLat, coords.moonLong, coords.marsLat, coords.marsLong, coords.prob);
+		fprintf(file, "%6d%6d%6d%6d%46.36Le\n", coords.moonLat, coords.moonLong, coords.marsLat, coords.marsLong, coords.prob);
 	}
 	
 	fclose(file);
@@ -143,7 +143,7 @@ void PossibleHotspotsDistribution::PrintToFile(const char* filename){
 }
 
 void PossibleHotspotsDistribution::Normalize() {
-	double sumProb = 0;
+	Double sumProb = 0;
 	for(std::vector<HotspotCoordsWithProbability>::iterator coord=possibleHotspots.begin(); coord<possibleHotspots.end(); coord++)
 		sumProb += coord->prob;
 	for(std::vector<HotspotCoordsWithProbability>::iterator coord=possibleHotspots.begin(); coord<possibleHotspots.end(); coord++)

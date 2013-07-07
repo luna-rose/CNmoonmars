@@ -1,22 +1,13 @@
 #include <fstream>
 #include <cstdlib>
 #include "ObservedHotspots.h"
+#include "Common.h"
 #include "AbcdSpaceLimits.h"
 #include "AbcdSpaceProbabilityDistribution.h"
 #include "PossibleHotspotsDistribution.h"
 #ifdef using_parallel
 	#include <omp.h>
 #endif
-
-void PrintCoord(HotspotCoordsWithDate coord, void* data) {
-	printf("%5d, %5d, %5d, %5d, %5d, %5d\n", 
-		   coord.month.value, 
-		   coord.year,
-		   coord.moonLat,
-		   coord.moonLong,
-		   coord.marsLat,
-		   coord.marsLong);
-}
 
 int main(int argc, char* argv[]) {
 	int gridRes = 5;

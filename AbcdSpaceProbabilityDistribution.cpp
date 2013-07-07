@@ -29,7 +29,7 @@ void AbcdSpaceProbabilityDistribution::PrintToFile(const char* filename){
 	
 	for(long int i=0; i<numProbPoints; i++){
 		AbcdSpacePoint point = probPoints[i];
-		fprintf(file, "%25.17lf %25.17lf %25.17lf %28.17le\n", point.ba, point.ca, point.da, point.prob);
+		fprintf(file, "%44.36Lf %44.36Lf %44.36Lf %47.36Le\n", point.ba, point.ca, point.da, point.prob);
 	}
 	
 	fclose(file);
@@ -38,7 +38,7 @@ void AbcdSpaceProbabilityDistribution::PrintToFile(const char* filename){
 	printf("Printed probability distribution to file: \"%s\".\n", filename);
 }
 
-double AbcdSpaceProbabilityDistribution::CalculateHotspotProbability(const HotspotCoords coord, double prob) {
+Double AbcdSpaceProbabilityDistribution::CalculateHotspotProbability(const HotspotCoords coord, Double prob) {
 	if (coord.moonLat == HotspotCoords::MissingCoord ||
 		coord.moonLong == HotspotCoords::MissingCoord ||
 		coord.marsLat == HotspotCoords::MissingCoord ||
@@ -51,16 +51,16 @@ double AbcdSpaceProbabilityDistribution::CalculateHotspotProbability(const Hotsp
 	for(long int i=0; i<numProbPoints; i++){
 		AbcdSpacePoint point = probPoints[i];
 		
-		double xmin = -0.5/HotspotCoords::NumLats;
-		double xmax = 0.5/HotspotCoords::NumLats;
+		Double xmin = -0.5/HotspotCoords::NumLats;
+		Double xmax = 0.5/HotspotCoords::NumLats;
 		
-		double a = ((double)coord.moonLat)/HotspotCoords::NumLats;
-		double b = a + point.ba;
-		double c = a + point.ca;
-		double d = a + point.da;
+		Double a = ((Double)coord.moonLat)/HotspotCoords::NumLats;
+		Double b = a + point.ba;
+		Double c = a + point.ca;
+		Double d = a + point.da;
 		
-		double bxmin = ((double)coord.moonLong-0.5)/HotspotCoords::NumLongs - b;
-		double bxmax = ((double)coord.moonLong+0.5)/HotspotCoords::NumLongs - b;
+		Double bxmin = ((Double)coord.moonLong-0.5)/HotspotCoords::NumLongs - b;
+		Double bxmax = ((Double)coord.moonLong+0.5)/HotspotCoords::NumLongs - b;
 		while (bxmin > 0.5) bxmin -= 1.0;
 		while (bxmax > 0.5) bxmax -= 1.0;
 		while (bxmin < -0.5) bxmin += 1.0;
@@ -68,8 +68,8 @@ double AbcdSpaceProbabilityDistribution::CalculateHotspotProbability(const Hotsp
 		if(bxmin > xmin) xmin = bxmin;
 		if(bxmax < xmax) xmax = bxmax;
 		
-		double cxmin = ((double)coord.marsLat-0.5)/HotspotCoords::NumLats - c;
-		double cxmax = ((double)coord.marsLat+0.5)/HotspotCoords::NumLats - c;
+		Double cxmin = ((Double)coord.marsLat-0.5)/HotspotCoords::NumLats - c;
+		Double cxmax = ((Double)coord.marsLat+0.5)/HotspotCoords::NumLats - c;
 		while (cxmin > 0.5) cxmin -= 1.0;
 		while (cxmax > 0.5) cxmax -= 1.0;
 		while (cxmin < -0.5) cxmin += 1.0;
@@ -77,8 +77,8 @@ double AbcdSpaceProbabilityDistribution::CalculateHotspotProbability(const Hotsp
 		if(cxmin > xmin) xmin = cxmin;
 		if(cxmax < xmax) xmax = cxmax;
 		
-		double dxmin = ((double)coord.marsLong-0.5)/HotspotCoords::NumLongs - d;
-		double dxmax = ((double)coord.marsLong+0.5)/HotspotCoords::NumLongs - d;
+		Double dxmin = ((Double)coord.marsLong-0.5)/HotspotCoords::NumLongs - d;
+		Double dxmax = ((Double)coord.marsLong+0.5)/HotspotCoords::NumLongs - d;
 		while (dxmin > 0.5) dxmin -= 1.0;
 		while (dxmax > 0.5) dxmax -= 1.0;
 		while (dxmin < -0.5) dxmin += 1.0;
@@ -120,7 +120,7 @@ void AbcdSpaceProbabilityDistribution::CalculateProbabilityDistribution(Observed
 					da-ba > LimitCount - limsInt.limits[1][3] && da-ba < limsInt.limits[3][1] &&
 					da-ca > LimitCount - limsInt.limits[2][3] && da-ca < limsInt.limits[3][2]) {
 					
-					AbcdSpacePoint point((double)ba/LimitCount, (double)ca/LimitCount, (double)da/LimitCount, 1.0);
+					AbcdSpacePoint point((Double)ba/LimitCount, (Double)ca/LimitCount, (Double)da/LimitCount, 1.0);
 					observedHotspots.Iterate(CalculateProbSingleHotspot, &point);
 					
 					int baIndex = (ba - (LimitCount - limsInt.limits[0][1] + increment))/increment;
@@ -136,7 +136,7 @@ void AbcdSpaceProbabilityDistribution::CalculateProbabilityDistribution(Observed
 	}
 	
 	if(normalize) {
-		double sumProb = 0;
+		Double sumProb = 0;
 		for(long int i=0; i<numProbPoints; i++)
 			sumProb += probPoints[i].prob;
 		for(long int i=0; i<numProbPoints; i++)
@@ -185,20 +185,20 @@ long int AbcdSpaceProbabilityDistribution::CalculateNumberOfAbcdPoints(AbcdSpace
 }
 
 void AbcdSpaceProbabilityDistribution::CalculateProbSingleHotspot(HotspotCoordsWithDate coord, void* data) {
-	static const double ScaleFactor = 3.2*HotspotCoords::NumLongs;
+	static const Double ScaleFactor = 3.2*HotspotCoords::NumLongs;
 	
 	AbcdSpacePoint* point = (AbcdSpacePoint*) data;
 	
 	if (point->prob == 0)
 		return;
 	
-	double xmin = -0.5/HotspotCoords::NumLats;
-	double xmax = 0.5/HotspotCoords::NumLats;
+	Double xmin = -0.5/HotspotCoords::NumLats;
+	Double xmax = 0.5/HotspotCoords::NumLats;
 	
-	double a = ((double)coord.moonLat)/HotspotCoords::NumLats;
-	double b = a + point->ba;
-	double c = a + point->ca;
-	double d = a + point->da;
+	Double a = ((Double)coord.moonLat)/HotspotCoords::NumLats;
+	Double b = a + point->ba;
+	Double c = a + point->ca;
+	Double d = a + point->da;
 	
 	if (coord.moonLat == HotspotCoords::MissingCoord) {
 		printf("Error: coord.moonLat is missing!\n");
@@ -206,8 +206,8 @@ void AbcdSpaceProbabilityDistribution::CalculateProbSingleHotspot(HotspotCoordsW
 	}
 	
 	if (coord.moonLong != HotspotCoords::MissingCoord) {
-		double bxmin = ((double)coord.moonLong-0.5)/HotspotCoords::NumLongs - b;
-		double bxmax = ((double)coord.moonLong+0.5)/HotspotCoords::NumLongs - b;
+		Double bxmin = ((Double)coord.moonLong-0.5)/HotspotCoords::NumLongs - b;
+		Double bxmax = ((Double)coord.moonLong+0.5)/HotspotCoords::NumLongs - b;
 		while (bxmin > 0.5) bxmin -= 1.0;
 		while (bxmax > 0.5) bxmax -= 1.0;
 		while (bxmin < -0.5) bxmin += 1.0;
@@ -216,8 +216,8 @@ void AbcdSpaceProbabilityDistribution::CalculateProbSingleHotspot(HotspotCoordsW
 		if(bxmax < xmax) xmax = bxmax;
 	}
 	if (coord.marsLat != HotspotCoords::MissingCoord) {
-		double cxmin = ((double)coord.marsLat-0.5)/HotspotCoords::NumLats - c;
-		double cxmax = ((double)coord.marsLat+0.5)/HotspotCoords::NumLats - c;
+		Double cxmin = ((Double)coord.marsLat-0.5)/HotspotCoords::NumLats - c;
+		Double cxmax = ((Double)coord.marsLat+0.5)/HotspotCoords::NumLats - c;
 		while (cxmin > 0.5) cxmin -= 1.0;
 		while (cxmax > 0.5) cxmax -= 1.0;
 		while (cxmin < -0.5) cxmin += 1.0;
@@ -226,8 +226,8 @@ void AbcdSpaceProbabilityDistribution::CalculateProbSingleHotspot(HotspotCoordsW
 		if(cxmax < xmax) xmax = cxmax;
 	}
 	if (coord.marsLong != HotspotCoords::MissingCoord) {
-		double dxmin = ((double)coord.marsLong-0.5)/HotspotCoords::NumLongs - d;
-		double dxmax = ((double)coord.marsLong+0.5)/HotspotCoords::NumLongs - d;
+		Double dxmin = ((Double)coord.marsLong-0.5)/HotspotCoords::NumLongs - d;
+		Double dxmax = ((Double)coord.marsLong+0.5)/HotspotCoords::NumLongs - d;
 		while (dxmin > 0.5) dxmin -= 1.0;
 		while (dxmax > 0.5) dxmax -= 1.0;
 		while (dxmin < -0.5) dxmin += 1.0;

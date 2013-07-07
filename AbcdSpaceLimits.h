@@ -3,6 +3,7 @@
 
 
 #include <cstdio>
+#include "Common.h"
 #include "ObservedHotspots.h"
 #include "AbcdSpaceLimitsInt.h"
 
@@ -24,7 +25,7 @@ private:
 	// the first index is above the second one
 	// i.e. b_a_max is limits[1][0]
 	//      b_a_min is -limits[0][1]
-	double limits[4][4];
+	Double limits[4][4];
 };
 					
 

@@ -2,11 +2,12 @@
 #define __HOTSPOT_COORDS_WITH_PROBABILITY__
 
 
+#include "Common.h"
 #include "HotspotCoords.h"
 
 class HotspotCoordsWithProbability : public HotspotCoords {
 public:
-	double prob;
+	Double prob;
 };
 
 

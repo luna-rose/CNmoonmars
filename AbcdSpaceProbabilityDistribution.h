@@ -3,6 +3,7 @@
 
 
 #include <vector>
+#include "Common.h"
 #include "ObservedHotspots.h"
 #include "AbcdSpaceLimits.h"
 
@@ -14,7 +15,7 @@ public:
 	
 	void PrintToFile(const char* filename);
 	
-	double CalculateHotspotProbability(const HotspotCoords coord, double prob = 0);
+	Double CalculateHotspotProbability(const HotspotCoords coord, Double prob = 0);
 	
 	static long int CalculateNumberOfAbcdPoints(AbcdSpaceLimits limits, int gridRes, int increment);
 	
@@ -22,14 +23,14 @@ public:
 
 private:
 	struct AbcdSpacePoint {
-		double ba;
-		double ca;
-		double da;
-		double prob;
+		Double ba;
+		Double ca;
+		Double da;
+		Double prob;
 		
 		AbcdSpacePoint(){}
 		
-		AbcdSpacePoint(double inBa, double inCa, double inDa, double inProb){
+		AbcdSpacePoint(Double inBa, Double inCa, Double inDa, Double inProb){
 			ba = inBa;
 			ca = inCa;
 			da = inDa;
