@@ -151,7 +151,7 @@ void AbcdSpaceProbabilityDistribution::CalculateProbabilityDistribution(Observed
 
 long int AbcdSpaceProbabilityDistribution::CalculateNumberOfAbcdPoints(AbcdSpaceLimits limits, int gridRes, int increment) {
 	AbcdSpaceLimitsInt limsInt = limits.GenerateAbcdSpaceLimitsInt(gridRes);
-	return CalculateNumberOfAbcdPoints(limsInt, gridRes, increment, NULL);
+	return CalculateNumberOfAbcdPoints(limsInt, gridRes, increment);
 }
 
 long int AbcdSpaceProbabilityDistribution::CalculateNumberOfAbcdPoints(AbcdSpaceLimitsInt limsInt, int gridRes, int increment, std::vector<long int>* starts) {
