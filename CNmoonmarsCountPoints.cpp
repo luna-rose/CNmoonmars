@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <cstdlib>
+#include <string>
 #include "Common.h"
 #include "ObservedHotspots.h"
 #include "AbcdSpaceLimits.h"
@@ -19,10 +20,10 @@ int main(int argc, char* argv[]) {
 	
 	printf("===============================================================\n");
 	
-	const char* inputFile = "data/input-observedhotspots.txt";
+	std::string inputFile = "data/input-observedhotspots.txt";
 	
 	printf("Point count is based on observed hotspots in file:\n");
-	printf("%s\n\n", inputFile);
+	printf("%s\n\n", inputFile.c_str());
 	
 	ObservedHotspots observedHotspots(inputFile);
 	//observedHotspots.Iterate(PrintCoord, NULL);

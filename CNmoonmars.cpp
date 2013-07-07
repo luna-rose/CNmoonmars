@@ -40,32 +40,37 @@ int main(int argc, char* argv[]) {
 	printf("Grid increment:                 %d\n", increment);
 	printf("Abcd space chunking interval:   %d\n\n", interval);
 	
-	const char* inputFile = "data/input-observedhotspots.txt";
-	const char* copyFile = "output/input-observedhotspots.txt";
-	const char* limitFile = "output/limits.txt";
-	const char* abcdDistFile = "output/abcdspaceprob.txt";
-	const char* possibleHotspotsFile = "output/possiblehotspots.txt";
+	std::string dataDir = "data/";
+	std::string statusDir = "status/";
+	std::string outputDir = "output/";
 	
-	std::ifstream src(inputFile);
-	std::ofstream dst(copyFile);
+	std::string inputFile = "input-observedhotspots.txt";
+	std::string limitFile = "limits.txt";
+	std::string abcdDistFile = "abcdspaceprob.txt";
+	std::string possibleHotspotsFile = "possiblehotspots.txt";
+	
+	std::string infile = dataDir+inputFile;
+	std::string outfile = outputDir+inputFile;
+	std::ifstream src(infile.c_str());
+	std::ofstream dst(outfile.c_str());
 	dst << src.rdbuf();
-	printf("Copied input file to \"%s\".\n\n", copyFile);
+	printf("Copied input file to \"%s\".\n\n", outfile.c_str());
 	
-	ObservedHotspots observedHotspots(inputFile);
+	ObservedHotspots observedHotspots(infile);
 	observedHotspots.Iterate(PrintCoord, NULL);
 	printf("\n");
 	
 	AbcdSpaceLimits limits(observedHotspots);
-	limits.PrintToFile(limitFile);
+	limits.PrintToFile(outputDir+limitFile);
 	limits.PrintToFile(stdout);
 	printf("\n");
 	
 	AbcdSpaceProbabilityDistribution abcdDist(observedHotspots, limits, 1, 5);
-	abcdDist.PrintToFile(abcdDistFile);
+	abcdDist.PrintToFile(outputDir+abcdDistFile);
 	printf("\n");
 	
-	PossibleHotspotsDistribution possibleHotspots(observedHotspots, limits, gridRes, increment, interval);
-	possibleHotspots.PrintToFile(possibleHotspotsFile);
+	PossibleHotspotsDistribution possibleHotspots(observedHotspots, limits, gridRes, increment, interval, statusDir);
+	possibleHotspots.PrintToFile(outputDir+possibleHotspotsFile);
 	
 	return EXIT_SUCCESS;
 }

@@ -2,6 +2,7 @@
 #define __ABCD_SPACE_PROBABILITY_DISTRIBUTION__
 
 
+#include <string>
 #include <vector>
 #include "Common.h"
 #include "ObservedHotspots.h"
@@ -13,7 +14,7 @@ public:
 	AbcdSpaceProbabilityDistribution(ObservedHotspots observedHotspots, AbcdSpaceLimitsInt limits, int gridRes, int increment, bool normalize = true);
 	~AbcdSpaceProbabilityDistribution();
 	
-	void PrintToFile(const char* filename);
+	void PrintToFile(std::string filename);
 	
 	Double CalculateHotspotProbability(const HotspotCoords coord, Double prob = 0);
 	

@@ -1,5 +1,3 @@
-#include <string>
-#include <cstring>
 #include <cstdlib>
 #include <cstdio>
 #include "Month.h"
@@ -7,30 +5,30 @@
 Month::Month() : value(Invalid) {
 }
 
-Month::Month(char* str) {
+Month::Month(std::string str) {
 	Set(str);
 }
 
-void Month::Set(char* str) {
-	if(strcmp(str, "Jan")==0) {value = Jan; return;}
-	if(strcmp(str, "Feb")==0) {value = Feb; return;}
-	if(strcmp(str, "Mar")==0) {value = Mar; return;}
+void Month::Set(std::string str) {
+	if(str=="Jan") {value = Jan; return;}
+	if(str=="Feb") {value = Feb; return;}
+	if(str=="Mar") {value = Mar; return;}
 
 	
-	if(strcmp(str, "Apr")==0) {value = Apr; return;}
-	if(strcmp(str, "May")==0) {value = May; return;}
-	if(strcmp(str, "Jun")==0) {value = Jun; return;}
+	if(str=="Apr") {value = Apr; return;}
+	if(str=="May") {value = May; return;}
+	if(str=="Jun") {value = Jun; return;}
 
 	
-	if(strcmp(str, "Jul")==0) {value = Jul; return;}
-	if(strcmp(str, "Aug")==0) {value = Aug; return;}
-	if(strcmp(str, "Sep")==0) {value = Sep; return;}
+	if(str=="Jul") {value = Jul; return;}
+	if(str=="Aug") {value = Aug; return;}
+	if(str=="Sep") {value = Sep; return;}
 
 	
-	if(strcmp(str, "Oct")==0) {value = Oct; return;}
-	if(strcmp(str, "Nov")==0) {value = Nov; return;}
-	if(strcmp(str, "Dec")==0) {value = Dec; return;}
+	if(str=="Oct") {value = Oct; return;}
+	if(str=="Nov") {value = Nov; return;}
+	if(str=="Dec") {value = Dec; return;}
 
-	printf("Invalid month string: %s\n", str);
+	printf("Invalid month string: %s\n", str.c_str());
 	exit(EXIT_FAILURE);
 }

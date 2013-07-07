@@ -14,10 +14,10 @@ AbcdSpaceLimits::AbcdSpaceLimits(ObservedHotspots observedHotspots) {
 	PairwiseCombineLimits();
 }
 
-void AbcdSpaceLimits::PrintToFile(const char* filename){
-	FILE* file = fopen(filename, "w");
+void AbcdSpaceLimits::PrintToFile(std::string filename){
+	FILE* file = fopen(filename.c_str(), "w");
 	if(!file) {
-		printf("Error: Could not open file for writing: \"%s\"\n", filename);
+		printf("Error: Could not open file for writing: \"%s\"\n", filename.c_str());
 		exit(EXIT_FAILURE);
 	}
 	
@@ -25,7 +25,7 @@ void AbcdSpaceLimits::PrintToFile(const char* filename){
 	
 	fclose(file);
 	
-	printf("Printed limits to file: \"%s\".\n", filename);
+	printf("Printed limits to file: \"%s\".\n", filename.c_str());
 }
 
 void AbcdSpaceLimits::PrintToFile(FILE* file){

@@ -22,10 +22,10 @@ long int AbcdSpaceProbabilityDistribution::GetNumPoints() {
 	return numProbPoints;
 }
 
-void AbcdSpaceProbabilityDistribution::PrintToFile(const char* filename){
-	FILE* file = fopen(filename, "w");
+void AbcdSpaceProbabilityDistribution::PrintToFile(std::string filename){
+	FILE* file = fopen(filename.c_str(), "w");
 	if(!file) {
-		printf("Error: Could not open file for writing: \"%s\"\n", filename);
+		printf("Error: Could not open file for writing: \"%s\"\n", filename.c_str());
 		exit(EXIT_FAILURE);
 	}
 	
@@ -38,7 +38,7 @@ void AbcdSpaceProbabilityDistribution::PrintToFile(const char* filename){
 	fclose(file);
 	
 	printf("Probability distribution contains %ld points.\n", numProbPoints);
-	printf("Printed probability distribution to file: \"%s\".\n", filename);
+	printf("Printed probability distribution to file: \"%s\".\n", filename.c_str());
 }
 
 Double AbcdSpaceProbabilityDistribution::CalculateHotspotProbability(const HotspotCoords coord, Double prob) {

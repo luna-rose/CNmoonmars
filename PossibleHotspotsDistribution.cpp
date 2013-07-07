@@ -8,7 +8,8 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(AbcdSpaceLimits limit
 	printf("Probability distribution contains %ld points.\n", abcdDistribution->GetNumPoints());
 }
 
-PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots observedHotspots, AbcdSpaceLimits limits, int gridRes, int increment, int interval) {
+PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots observedHotspots, AbcdSpaceLimits limits,
+														   int gridRes, int increment, int interval, std::string directory) {
 	CalculatePossibleHotspotCoords(limits);
 	
 	long int preCalcNumPoints = AbcdSpaceProbabilityDistribution::CalculateNumberOfAbcdPoints(limits, gridRes, increment);
@@ -41,7 +42,10 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots obse
 		sprintf(buff, "Chunk %4d of %4d,     Chunk points: %9ld,     Total points: %12ld\n",
 				chunkCount, numChunks, abcdDistribution->GetNumPoints(), pointCount);
 		printf("%s",buff);
-		PrintStatusFile(buff, chunkCount);
+		
+		char filename[1024];
+		sprintf(filename, "%s/chunk%06d.txt", directory.c_str(), chunkCount);
+		PrintStatusFile(buff, filename);
 		
 		delete(abcdDistribution);
 		
@@ -62,10 +66,7 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots obse
 	Normalize();
 }
 
-void PossibleHotspotsDistribution::PrintStatusFile(char* buff, int num) {
-	char filename[1024];
-	sprintf(filename, "status/chunk%06d.txt",num);
-	
+void PossibleHotspotsDistribution::PrintStatusFile(char* buff, char* filename) {
 	FILE* file = fopen(filename, "w");
 	if(!file) {
 		printf("Error: Could not open file for writing: \"%s\"\n", filename);
@@ -125,10 +126,10 @@ void PossibleHotspotsDistribution::AccumulateProbabilities(AbcdSpaceProbabilityD
 	}
 }
 
-void PossibleHotspotsDistribution::PrintToFile(const char* filename){
-	FILE* file = fopen(filename, "w");
+void PossibleHotspotsDistribution::PrintToFile(std::string filename){
+	FILE* file = fopen(filename.c_str(), "w");
 	if(!file) {
-		printf("Error: Could not open file for writing: \"%s\"\n", filename);
+		printf("Error: Could not open file for writing: \"%s\"\n", filename.c_str());
 		exit(EXIT_FAILURE);
 	}
 	
@@ -139,7 +140,7 @@ void PossibleHotspotsDistribution::PrintToFile(const char* filename){
 	
 	fclose(file);
 	
-	printf("Printed possible hotspots with probabilities to file: \"%s\".\n", filename);
+	printf("Printed possible hotspots with probabilities to file: \"%s\".\n", filename.c_str());
 }
 
 void PossibleHotspotsDistribution::Normalize() {

@@ -2,6 +2,7 @@
 #define __POSSIBLE_HOTSPOTS_DISTRIBUTION__
 
 
+#include <string>
 #include <vector>
 #include "AbcdSpaceLimits.h"
 #include "AbcdSpaceProbabilityDistribution.h"
@@ -10,16 +11,16 @@
 class PossibleHotspotsDistribution {
 public:
 	PossibleHotspotsDistribution(AbcdSpaceLimits limits, AbcdSpaceProbabilityDistribution* abcdDistribution); 
-	PossibleHotspotsDistribution(ObservedHotspots observedHotspots, AbcdSpaceLimits limits, int gridRes, int increment, int interval);
+	PossibleHotspotsDistribution(ObservedHotspots observedHotspots, AbcdSpaceLimits limits, int gridRes, int increment, int interval, std::string directory);
 	
-	void PrintToFile(const char* filename);
+	void PrintToFile(std::string filename);
 	
 private:
 	void CalculatePossibleHotspotCoords(AbcdSpaceLimits limits);
 	void AccumulateProbabilities(AbcdSpaceProbabilityDistribution* abcdDistribution);
 	void Normalize();
 	
-	void PrintStatusFile(char* buff, int num);
+	void PrintStatusFile(char* buff, char* filename);
 	
 	std::vector <HotspotCoordsWithProbability> possibleHotspots;
 };

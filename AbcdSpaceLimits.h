@@ -3,6 +3,7 @@
 
 
 #include <cstdio>
+#include <string>
 #include "Common.h"
 #include "ObservedHotspots.h"
 #include "AbcdSpaceLimitsInt.h"
@@ -11,7 +12,7 @@ class AbcdSpaceLimits {
 public:
 	AbcdSpaceLimits(ObservedHotspots observedHotspots);
 	
-	void PrintToFile(const char* filename);
+	void PrintToFile(std::string filename);
 	void PrintToFile(FILE* file);
 	
 	AbcdSpaceLimitsInt GenerateAbcdSpaceLimitsInt(int scale);

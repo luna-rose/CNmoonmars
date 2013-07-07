@@ -2,13 +2,14 @@
 #define __OBSERVED_HOTSPOTS__
 
 
+#include <string>
 #include <vector>
 #include <cstdio>
 #include "HotspotCoordsWithDate.h"
 
 class ObservedHotspots {
 public:
-	ObservedHotspots(const char* filename);
+	ObservedHotspots(std::string filename);
 	~ObservedHotspots();
 	
 	void Iterate(void (*function)(HotspotCoordsWithDate coord, void* data), void* data);

@@ -2,12 +2,14 @@
 #define __MONTH__
 
 
+#include <string>
+
 class Month {
 public:
 	Month();
-	Month(char* str);
+	Month(std::string str);
 	
-	void Set(char* str);
+	void Set(std::string str);
 	
 	enum MonthEnum { Invalid = 0,
 		Jan = 1, Feb = 2,  Mar = 3,  Apr = 4, 

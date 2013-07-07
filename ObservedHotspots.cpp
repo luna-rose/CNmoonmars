@@ -1,10 +1,10 @@
 #include <cstdlib>
 #include "ObservedHotspots.h"
 
-ObservedHotspots::ObservedHotspots(const char* filename) {
-	FILE* file = fopen(filename, "r");
+ObservedHotspots::ObservedHotspots(std::string filename) {
+	FILE* file = fopen(filename.c_str(), "r");
 	if(!file) {
-		printf("Error: Could not open file for reading: \"%s\"\n", filename);
+		printf("Error: Could not open file for reading: \"%s\"\n", filename.c_str());
 		exit(EXIT_FAILURE);
 	}
 	
