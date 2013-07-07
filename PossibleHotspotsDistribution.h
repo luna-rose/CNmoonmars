@@ -19,6 +19,8 @@ private:
 	void AccumulateProbabilities(AbcdSpaceProbabilityDistribution* abcdDistribution);
 	void Normalize();
 	
+	void PrintStatusFile(char* buff, int num);
+	
 	std::vector <HotspotCoordsWithProbability> possibleHotspots;
 };
 

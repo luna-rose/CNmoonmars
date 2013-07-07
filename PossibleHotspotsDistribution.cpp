@@ -37,8 +37,11 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots obse
 		
 		pointCount += abcdDistribution->GetNumPoints();
 		chunkCount ++;
-		printf("Chunk %4d of %4d,     Chunk points: %9ld,     Total points: %12ld\n", 
-			   chunkCount, numChunks, abcdDistribution->GetNumPoints(), pointCount);
+		char buff[1024];
+		sprintf(buff, "Chunk %4d of %4d,     Chunk points: %9ld,     Total points: %12ld\n",
+				chunkCount, numChunks, abcdDistribution->GetNumPoints(), pointCount);
+		printf("%s",buff);
+		PrintStatusFile(buff, chunkCount);
 		
 		delete(abcdDistribution);
 		
@@ -57,6 +60,21 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots obse
 	}
 	
 	Normalize();
+}
+
+void PossibleHotspotsDistribution::PrintStatusFile(char* buff, int num) {
+	char filename[1024];
+	sprintf(filename, "status/chunk%06d.txt",num);
+	
+	FILE* file = fopen(filename, "w");
+	if(!file) {
+		printf("Error: Could not open file for writing: \"%s\"\n", filename);
+		exit(EXIT_FAILURE);
+	}
+	
+	fprintf(file, "%s", buff);
+	
+	fclose(file);
 }
 
 void PossibleHotspotsDistribution::CalculatePossibleHotspotCoords(AbcdSpaceLimits limits) {
