@@ -30,6 +30,9 @@ private:
 	std::vector <HotspotCoordsWithProbability> possibleHotspots;
 	int startIndex;
 	int endIndex;
+	int gridRes;
+	int increment;
+	int interval;
 };
 
 
