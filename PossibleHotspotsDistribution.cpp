@@ -26,6 +26,8 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots obse
 	AbcdSpaceLimitsInt partialSpaceLimits = abcdSpaceLimits;
 	partialSpaceLimits.limits[1][0] = LimitCount - partialSpaceLimits.limits[0][1] + increment*interval + 1;
 	
+	fflush(stdout);
+	
 	int chunkCount = 0;
 	long int pointCount = 0;
 	while (LimitCount - partialSpaceLimits.limits[0][1] + increment < maxBa) {
