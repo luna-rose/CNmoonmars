@@ -1,5 +1,6 @@
 #include <fstream>
 #include <cstdlib>
+#include <getopt.h>
 #include "ObservedHotspots.h"
 #include "Common.h"
 #include "AbcdSpaceLimits.h"
@@ -9,6 +10,37 @@
 	#include <omp.h>
 #endif
 
+void ParseArguments(int argc, char* argv[], int &gridRes, int &increment, int &interval) {
+	static struct option long_options[] =
+	{
+		{"gridres",    required_argument, NULL, 'g'},
+		{"increment",  required_argument, NULL, 'c'},
+		{"interval",   required_argument, NULL, 't'},
+		{0, 0, 0, 0}
+	};
+	
+	int option_index;
+	int c;
+	while ((c = getopt_long_only(argc, argv, "", long_options, &option_index)) != -1) {
+		switch (c)
+		{
+			case 'g':
+				gridRes = atoi(optarg);
+				break;
+			case 'c':
+				increment = atoi(optarg);
+				break;
+			case 't':
+				interval = atoi(optarg);
+				break;
+			case '?':
+			default:
+				fprintf (stderr, "Error: Could not parse arguments.\n");
+				exit(EXIT_FAILURE);
+		}
+	}
+}
+
 int main(int argc, char* argv[]) {
 	int gridRes = 5;
 	int increment = 1;
@@ -17,17 +49,8 @@ int main(int argc, char* argv[]) {
 #else
 	int interval = 1;
 #endif
-
-	if (argc >= 2)
-		gridRes = atoi(argv[1]);
-	if (argc >= 3)
-		increment = atoi(argv[2]);
-	if (argc >= 4)
-		interval = atoi(argv[3]);
-	if (argc >= 5) {
-		printf("Too many arguments!");
-		return EXIT_FAILURE;
-	}
+	
+	ParseArguments(argc, argv, gridRes, increment, interval);
 	
 	printf("===============================================================\n");
 
