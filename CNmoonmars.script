@@ -3,6 +3,9 @@
 #tell grid engine to use current directory
 #$ -cwd
 
+exec > >(tee output/console-output.txt)
+exec 2>&1
+
 echo +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 echo Running on:
@@ -20,12 +23,17 @@ make
 
 echo +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-echo Deleting files in \"output/\" and \"status/\":
-rm output/*
-rm status/*
+echo Deleting files in \"output/\": 
+rm `find output/* -type f | grep -v '^output/console-output.txt$'`
+rm -r `find output/* -type d`
+
+echo ---------------------------------------------------------------
+
+echo Deleting files in \"status/\":
+rm -r status/*
 
 echo +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-RUNSTR="./CNmoonmars 10"
+RUNSTR="./CNmoonmars -gridres 10"
 echo Running \"$RUNSTR\":
 time $RUNSTR

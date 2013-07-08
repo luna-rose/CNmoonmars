@@ -42,6 +42,7 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots obse
 		sprintf(buff, "Chunk %4d of %4d,     Chunk points: %9ld,     Total points: %12ld\n",
 				chunkCount, numChunks, abcdDistribution->GetNumPoints(), pointCount);
 		printf("%s",buff);
+		fflush(stdout);
 		
 		char filename[1024];
 		sprintf(filename, "%s/chunk%06d.txt", directory.c_str(), chunkCount);
