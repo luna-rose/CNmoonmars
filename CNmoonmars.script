@@ -3,6 +3,21 @@
 #tell grid engine to use current directory
 #$ -cwd
 
+case $# in
+0)	RUNSTR="./CNmoonmars"
+	;;
+1)	RUNSTR="./CNmoonmars -gridres $1"
+	;;
+2)  RUNSTR="./CNmoonmars -gridres $1 -increment $2"
+	;;
+3)  RUNSTR="./CNmoonmars -gridres $1 -increment $2 -interval $3"
+	;;
+4)  echo Error: Too many arguments. Exiting.
+	set -e
+	exit 1;
+	;;
+esac
+
 exec > >(tee output/console-output.txt)
 exec 2>&1
 
@@ -34,6 +49,5 @@ rm -r status/*
 
 echo +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-RUNSTR="./CNmoonmars -gridres 10"
 echo Running \"$RUNSTR\":
 time $RUNSTR
