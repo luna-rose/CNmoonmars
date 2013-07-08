@@ -77,7 +77,9 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots obse
 			   preCalcNumPoints, pointCount);
 	}
 	
-	Normalize();
+	if (!IsPartial()) {
+		Normalize();
+	}
 }
 
 void PossibleHotspotsDistribution::PrintStatusFile(char* buff, char* filename) {
@@ -146,7 +148,7 @@ void PossibleHotspotsDistribution::AccumulateProbabilities(AbcdSpaceProbabilityD
 	int start = 0;
 	int end = possibleHotspots.size() - 1;
 	
-	if (startIndex != 0 || endIndex != 0) {
+	if (IsPartial()) {
 		if (startIndex - 1 < end)
 			start = startIndex - 1;
 		else {
@@ -172,10 +174,11 @@ void PossibleHotspotsDistribution::PrintToFile(std::string filename){
 		exit(EXIT_FAILURE);
 	}
 	
-	if(!(startIndex == 0 && endIndex == 0)) {
+	if(IsPartial()) {
 		fprintf(file, "!! THIS IS A PARTIAL FILE !!\n");
 		fprintf(file, "START INDEX = %4d\n", startIndex);
 		fprintf(file, "END   INDEX = %4d\n\n", endIndex);
+		fprintf(file, "PROBABILITIES ARE NOT NORMALIZED\n\n");
 	}
 	
 	for(std::vector<HotspotCoordsWithProbability>::iterator it = possibleHotspots.begin(); it<possibleHotspots.end(); it++){
@@ -186,7 +189,7 @@ void PossibleHotspotsDistribution::PrintToFile(std::string filename){
 	fclose(file);
 	
 	printf("Printed possible hotspots with probabilities to file: \"%s\".\n", filename.c_str());
-	if(!(startIndex == 0 && endIndex == 0)) {
+	if(IsPartial()) {
 		printf("Generated partial file from index %d to %d.\n", startIndex, endIndex);
 	}
 }
@@ -197,4 +200,8 @@ void PossibleHotspotsDistribution::Normalize() {
 		sumProb += coord->prob;
 	for(std::vector<HotspotCoordsWithProbability>::iterator coord=possibleHotspots.begin(); coord<possibleHotspots.end(); coord++)
 		coord->prob /= sumProb;	
+}
+
+bool PossibleHotspotsDistribution::IsPartial() {
+	return !(startIndex == 0 && endIndex == 0);
 }

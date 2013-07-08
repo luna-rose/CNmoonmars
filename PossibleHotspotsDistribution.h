@@ -25,6 +25,8 @@ private:
 	
 	void PrintStatusFile(char* buff, char* filename);
 	
+	bool IsPartial();
+	
 	std::vector <HotspotCoordsWithProbability> possibleHotspots;
 	int startIndex;
 	int endIndex;
