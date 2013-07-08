@@ -6,11 +6,11 @@
 case $# in
 0)	RUNSTR="./CNmoonmars"
 	;;
-1)	RUNSTR="./CNmoonmars -gridres $1"
+1)	RUNSTR="./CNmoonmars -gridRes $1"
 	;;
-2)  RUNSTR="./CNmoonmars -gridres $1 -increment $2"
+2)  RUNSTR="./CNmoonmars -gridRes $1 -increment $2"
 	;;
-3)  RUNSTR="./CNmoonmars -gridres $1 -increment $2 -interval $3"
+3)  RUNSTR="./CNmoonmars -gridRes $1 -increment $2 -interval $3"
 	;;
 4)  echo Error: Too many arguments. Exiting.
 	set -e

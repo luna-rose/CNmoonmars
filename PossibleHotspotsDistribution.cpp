@@ -2,14 +2,22 @@
 #include <cmath>
 #include "PossibleHotspotsDistribution.h"
 
-PossibleHotspotsDistribution::PossibleHotspotsDistribution(AbcdSpaceLimits limits, AbcdSpaceProbabilityDistribution* abcdDistribution) {
+PossibleHotspotsDistribution::PossibleHotspotsDistribution(AbcdSpaceLimits limits, AbcdSpaceProbabilityDistribution* abcdDistribution) :
+	startIndex(0),
+	endIndex(0)
+{
+	ValidateIndexLimits(startIndex, endIndex);
 	CalculatePossibleHotspotCoords(limits);
 	AccumulateProbabilities(abcdDistribution);
 	printf("Probability distribution contains %ld points.\n", abcdDistribution->GetNumPoints());
 }
 
 PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots observedHotspots, AbcdSpaceLimits limits,
-														   int gridRes, int increment, int interval, std::string directory) {
+							int gridRes, int increment, int interval, std::string directory, int inStartIndex, int inEndIndex) :
+	startIndex(inStartIndex),
+	endIndex(inEndIndex)
+{
+	ValidateIndexLimits(startIndex, endIndex);
 	CalculatePossibleHotspotCoords(limits);
 	
 	long int preCalcNumPoints = AbcdSpaceProbabilityDistribution::CalculateNumberOfAbcdPoints(limits, gridRes, increment);
@@ -18,9 +26,9 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots obse
 	int LimitCount = HotspotCoords::NumLats*HotspotCoords::NumLongs*gridRes;
 	
 	AbcdSpaceLimitsInt abcdSpaceLimits = limits.GenerateAbcdSpaceLimitsInt(gridRes);
+	
 	int minBa = LimitCount - abcdSpaceLimits.limits[0][1];
 	int maxBa = abcdSpaceLimits.limits[1][0];
-	
 	int numChunks = ceil((Double)((maxBa - minBa - 1)/increment)/interval);
 	
 	AbcdSpaceLimitsInt partialSpaceLimits = abcdSpaceLimits;
@@ -40,15 +48,18 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots obse
 		
 		pointCount += abcdDistribution->GetNumPoints();
 		chunkCount ++;
+		
 		char buff[1024];
 		sprintf(buff, "Chunk %4d of %4d,     Chunk points: %9ld,     Total points: %12ld\n",
 				chunkCount, numChunks, abcdDistribution->GetNumPoints(), pointCount);
 		printf("%s",buff);
 		fflush(stdout);
 		
-		char filename[1024];
-		sprintf(filename, "%s/chunk%06d.txt", directory.c_str(), chunkCount);
-		PrintStatusFile(buff, filename);
+		if (directory != "/dev/null") {
+			char filename[1024];
+			sprintf(filename, "%schunk%06d.txt", directory.c_str(), chunkCount);
+			PrintStatusFile(buff, filename);
+		}
 		
 		delete(abcdDistribution);
 		
@@ -79,6 +90,17 @@ void PossibleHotspotsDistribution::PrintStatusFile(char* buff, char* filename) {
 	fprintf(file, "%s", buff);
 	
 	fclose(file);
+}
+
+void PossibleHotspotsDistribution::ValidateIndexLimits(int startIndex, int endIndex) {
+	if(startIndex == 0 && endIndex == 0)
+		return;
+	
+	if(startIndex >= 1 && endIndex >= startIndex)
+		return;
+	
+	printf("Error: Invalid start & end indices: start = %d, end = %d.\n", startIndex, endIndex);
+	exit(EXIT_FAILURE);
 }
 
 void PossibleHotspotsDistribution::CalculatePossibleHotspotCoords(AbcdSpaceLimits limits) {
@@ -121,10 +143,24 @@ void PossibleHotspotsDistribution::CalculatePossibleHotspotCoords(AbcdSpaceLimit
 }
 
 void PossibleHotspotsDistribution::AccumulateProbabilities(AbcdSpaceProbabilityDistribution* abcdDistribution) {
+	int start = 0;
+	int end = possibleHotspots.size() - 1;
+	
+	if (startIndex != 0 || endIndex != 0) {
+		if (startIndex - 1 < end)
+			start = startIndex - 1;
+		else {
+			start = end;
+		}
+
+		if (endIndex - 1 < end)
+			end = endIndex - 1;
+	}
+	
 	#ifdef using_parallel
 	#pragma omp parallel for
 	#endif
-	for (int i=0; i<(int)possibleHotspots.size(); i++) {
+	for (int i=start; i<=end; i++) {
 		possibleHotspots[i].prob = abcdDistribution->CalculateHotspotProbability(possibleHotspots[i], possibleHotspots[i].prob);
 	}
 }
@@ -136,6 +172,12 @@ void PossibleHotspotsDistribution::PrintToFile(std::string filename){
 		exit(EXIT_FAILURE);
 	}
 	
+	if(!(startIndex == 0 && endIndex == 0)) {
+		fprintf(file, "!! THIS IS A PARTIAL FILE !!\n");
+		fprintf(file, "START INDEX = %4d\n", startIndex);
+		fprintf(file, "END   INDEX = %4d\n\n", endIndex);
+	}
+	
 	for(std::vector<HotspotCoordsWithProbability>::iterator it = possibleHotspots.begin(); it<possibleHotspots.end(); it++){
 		HotspotCoordsWithProbability coords = *it;
 		fprintf(file, "%6d%6d%6d%6d%46.36Le\n", coords.moonLat, coords.moonLong, coords.marsLat, coords.marsLong, coords.prob);
@@ -144,6 +186,9 @@ void PossibleHotspotsDistribution::PrintToFile(std::string filename){
 	fclose(file);
 	
 	printf("Printed possible hotspots with probabilities to file: \"%s\".\n", filename.c_str());
+	if(!(startIndex == 0 && endIndex == 0)) {
+		printf("Generated partial file from index %d to %d.\n", startIndex, endIndex);
+	}
 }
 
 void PossibleHotspotsDistribution::Normalize() {

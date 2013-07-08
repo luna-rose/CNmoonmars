@@ -1,6 +1,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <getopt.h>
+#include <sys/stat.h>
 #include "ObservedHotspots.h"
 #include "Common.h"
 #include "AbcdSpaceLimits.h"
@@ -10,12 +11,66 @@
 	#include <omp.h>
 #endif
 
-void ParseArguments(int argc, char* argv[], int &gridRes, int &increment, int &interval) {
+struct Params {
+	int gridRes;
+	int increment;
+	int interval;
+	
+	int startIndex;
+	int endIndex;
+	
+	std::string dataDir;
+	std::string statusDir;
+	std::string outputDir;
+	
+	std::string inputFile;
+	std::string limitFile;
+	std::string abcdDistFile;
+	std::string possibleHotspotsFile;
+};
+
+Params DefaultParams() {
+	Params params;
+	
+	params.gridRes = 5;
+	params.increment = 1;
+	
+#ifdef using_parallel
+	params.interval = omp_get_max_threads();
+#else
+	params.interval = 1;
+#endif
+	
+	params.startIndex = 0;
+	params.endIndex = 0;
+	
+	params.dataDir = "data/";
+	params.statusDir = "status/";
+	params.outputDir = "output/";
+	
+	params.inputFile = "input-observedhotspots.txt";
+	params.limitFile = "limits.txt";
+	params.abcdDistFile = "abcdspaceprob.txt";
+	params.possibleHotspotsFile = "possiblehotspots.txt";
+	
+	return params;
+}
+
+void ParseArguments(int argc, char* argv[], Params &params) {
 	static struct option long_options[] =
 	{
-		{"gridres",    required_argument, NULL, 'g'},
-		{"increment",  required_argument, NULL, 'c'},
-		{"interval",   required_argument, NULL, 't'},
+		{"gridRes",					required_argument, NULL, 'g'},
+		{"increment",				required_argument, NULL, 'c'},
+		{"interval",				required_argument, NULL, 't'},
+		{"startIndex",				required_argument, NULL, 's'},
+		{"endIndex",				required_argument, NULL, 'e'},
+		{"dataDir",					required_argument, NULL, 128},
+		{"statusDir",				required_argument, NULL, 129},
+		{"outputDir",				required_argument, NULL, 130},
+		{"inputFile",				required_argument, NULL, 131},
+		{"limitFile",				required_argument, NULL, 132},
+		{"abcdDistFile",			required_argument, NULL, 133},
+		{"possibleHotspotsFile",	required_argument, NULL, 134},
 		{0, 0, 0, 0}
 	};
 	
@@ -24,56 +79,79 @@ void ParseArguments(int argc, char* argv[], int &gridRes, int &increment, int &i
 	while ((c = getopt_long_only(argc, argv, "", long_options, &option_index)) != -1) {
 		switch (c)
 		{
-			case 'g':
-				gridRes = atoi(optarg);
-				break;
-			case 'c':
-				increment = atoi(optarg);
-				break;
-			case 't':
-				interval = atoi(optarg);
-				break;
-			case '?':
-			default:
+			case 'g': params.gridRes = atoi(optarg); break;
+			case 'c': params.increment = atoi(optarg); break;
+			case 't': params.interval = atoi(optarg); break;
+			case 's': params.startIndex = atoi(optarg); break;
+			case 'e': params.endIndex = atoi(optarg); break;
+			case 128: params.dataDir = optarg; break;
+			case 129: params.statusDir = optarg; break;
+			case 130: params.dataDir = optarg; break;
+			case 131: params.outputDir = optarg; break;
+			case 132: params.inputFile = optarg; break;
+			case 133: params.abcdDistFile = optarg; break;
+			case 134: params.possibleHotspotsFile = optarg; break;
+			default: 
 				fprintf (stderr, "Error: Could not parse arguments.\n");
 				exit(EXIT_FAILURE);
 		}
 	}
 }
 
-int main(int argc, char* argv[]) {
-	int gridRes = 5;
-	int increment = 1;
-#ifdef using_parallel
-	int interval = omp_get_max_threads();
-#else
-	int interval = 1;
-#endif
+bool DirectoryExists(char* dirName) {
+	struct stat sb;	
+	return (stat(dirName, &sb) == 0 && S_ISDIR(sb.st_mode));
+}
+
+void ModifyDirectory(std::string &dirName, int start, int end) {
+	char buff[2048];
+	sprintf(buff, "%s%04d-%04d/", dirName.c_str(), start, end);
+	dirName = buff;
 	
-	ParseArguments(argc, argv, gridRes, increment, interval);
+	if(!DirectoryExists(buff)) {
+		mode_t mode = S_IRWXU; 
+		if(mkdir(buff, mode) != 0) {
+			fprintf (stderr, "Error: Could not create directory \"%s\".\n", buff);
+			exit(EXIT_FAILURE);
+		}
+	}
+}
+
+void ModifyDirectoriesForPartialFiles(Params &params) {
+	ModifyDirectory(params.outputDir, params.startIndex, params.endIndex);
+	ModifyDirectory(params.statusDir, params.startIndex, params.endIndex);
+}
+
+int main(int argc, char* argv[]) {
+	Params params = DefaultParams();	
+	ParseArguments(argc, argv, params);
+	PossibleHotspotsDistribution::ValidateIndexLimits(params.startIndex, params.endIndex);
 	
 	printf("===============================================================\n");
-
+	
+	if(!(params.startIndex == 0 && params.endIndex == 0)) {
+		printf("GENERATING PARTIAL FILE\n\n");
+		ModifyDirectoriesForPartialFiles(params);
+	}
+	
 #ifdef using_parallel
-	printf("Number of cores:                %d\n", omp_get_num_procs());
-	printf("Max number of OpenMP threads:   %d\n\n", omp_get_max_threads());
+	printf("Number of cores:                %4d\n", omp_get_num_procs());
+	printf("Max number of OpenMP threads:   %4d\n\n", omp_get_max_threads());
 #endif
 	
-	printf("Grid resolution:                %d\n", gridRes);
-	printf("Grid increment:                 %d\n", increment);
-	printf("Abcd space chunking interval:   %d\n\n", interval);
+	printf("Grid resolution:                %4d\n", params.gridRes);
+	printf("Grid increment:                 %4d\n", params.increment);
+	printf("Abcd space chunking interval:   %4d\n\n", params.interval);
 	
-	std::string dataDir = "data/";
-	std::string statusDir = "status/";
-	std::string outputDir = "output/";
+	if(!(params.startIndex == 0 && params.endIndex == 0)) {
+		printf("Start index:                    %4d\n", params.startIndex);
+		printf("End index:                      %4d\n\n", params.endIndex);
+	}
 	
-	std::string inputFile = "input-observedhotspots.txt";
-	std::string limitFile = "limits.txt";
-	std::string abcdDistFile = "abcdspaceprob.txt";
-	std::string possibleHotspotsFile = "possiblehotspots.txt";
+	std::string infile = params.dataDir + params.inputFile;
+	std::string outfile = params.outputDir + params.inputFile;
 	
-	std::string infile = dataDir+inputFile;
-	std::string outfile = outputDir+inputFile;
+	printf("Input file is \"%s\".\n", infile.c_str());
 	std::ifstream src(infile.c_str());
 	std::ofstream dst(outfile.c_str());
 	dst << src.rdbuf();
@@ -84,16 +162,17 @@ int main(int argc, char* argv[]) {
 	printf("\n");
 	
 	AbcdSpaceLimits limits(observedHotspots);
-	limits.PrintToFile(outputDir+limitFile);
+	limits.PrintToFile(params.outputDir + params.limitFile);
 	limits.PrintToFile(stdout);
 	printf("\n");
 	
 	AbcdSpaceProbabilityDistribution abcdDist(observedHotspots, limits, 1, 5);
-	abcdDist.PrintToFile(outputDir+abcdDistFile);
+	abcdDist.PrintToFile(params.outputDir + params.abcdDistFile);
 	printf("\n");
 	
-	PossibleHotspotsDistribution possibleHotspots(observedHotspots, limits, gridRes, increment, interval, statusDir);
-	possibleHotspots.PrintToFile(outputDir+possibleHotspotsFile);
+	PossibleHotspotsDistribution possibleHotspots(observedHotspots, limits, params.gridRes, params.increment, params.interval, 
+												  params.statusDir, params.startIndex, params.endIndex);
+	possibleHotspots.PrintToFile(params.outputDir + params.possibleHotspotsFile);
 	
 	return EXIT_SUCCESS;
 }
