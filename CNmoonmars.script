@@ -1,0 +1,31 @@
+#!/bin/bash
+
+#tell grid engine to use current directory
+#$ -cwd
+
+echo +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+echo Running on:
+hostname
+
+echo +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+echo Running \"make clean\":
+make clean
+
+echo +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+echo Running \"make\":
+make
+
+echo +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+echo Deleting files in \"output/\" and \"status/\":
+rm output/*
+rm status/*
+
+echo +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+RUNSTR="./CNmoonmars 10"
+echo Running \"$RUNSTR\":
+time $RUNSTR
