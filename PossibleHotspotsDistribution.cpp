@@ -97,8 +97,16 @@ void PossibleHotspotsDistribution::PrintStatusFile(char* buff, char* filename) {
 	fclose(file);
 }
 
+bool PossibleHotspotsDistribution::IsPartial(int startIndex, int endIndex) {
+	return !(startIndex == 0 && endIndex == 0);
+}
+
+bool PossibleHotspotsDistribution::IsPartial() {
+	return IsPartial(startIndex, endIndex);
+}
+
 void PossibleHotspotsDistribution::ValidateIndexLimits(int startIndex, int endIndex) {
-	if(startIndex == 0 && endIndex == 0)
+	if(!IsPartial(startIndex, endIndex))
 		return;
 	
 	if(startIndex >= 1 && endIndex >= startIndex)
@@ -206,8 +214,4 @@ void PossibleHotspotsDistribution::Normalize() {
 		sumProb += coord->prob;
 	for(std::vector<HotspotCoordsWithProbability>::iterator coord=possibleHotspots.begin(); coord<possibleHotspots.end(); coord++)
 		coord->prob /= sumProb;	
-}
-
-bool PossibleHotspotsDistribution::IsPartial() {
-	return !(startIndex == 0 && endIndex == 0);
 }

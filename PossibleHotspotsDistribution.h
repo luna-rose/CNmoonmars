@@ -17,6 +17,7 @@ public:
 	void PrintToFile(std::string filename);
 	
 	static void ValidateIndexLimits(int startIndex, int endIndex);
+	static bool IsPartial(int startIndex, int endIndex);
 	
 private:
 	void CalculatePossibleHotspotCoords(AbcdSpaceLimits limits);

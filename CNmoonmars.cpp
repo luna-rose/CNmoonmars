@@ -24,7 +24,7 @@ struct Params {
 	std::string outputDir;
 	
 	std::string inputFile;
-	std::string limitFile;
+	std::string limitsFile;
 	std::string abcdDistFile;
 	std::string possibleHotspotsFile;
 };
@@ -45,11 +45,11 @@ Params DefaultParams() {
 	params.endIndex = 0;
 	
 	params.dataDir = "data/";
-	params.statusDir = "status/";
 	params.outputDir = "output/";
+	params.statusDir = "status/";
 	
 	params.inputFile = "input-observedhotspots.txt";
-	params.limitFile = "limits.txt";
+	params.limitsFile = "limits.txt";
 	params.abcdDistFile = "abcdspaceprob.txt";
 	params.possibleHotspotsFile = "possiblehotspots.txt";
 	
@@ -68,7 +68,7 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 		{"statusDir",				required_argument, NULL, 129},
 		{"outputDir",				required_argument, NULL, 130},
 		{"inputFile",				required_argument, NULL, 131},
-		{"limitFile",				required_argument, NULL, 132},
+		{"limitsFile",				required_argument, NULL, 132},
 		{"abcdDistFile",			required_argument, NULL, 133},
 		{"possibleHotspotsFile",	required_argument, NULL, 134},
 		{0, 0, 0, 0}
@@ -86,8 +86,8 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 			case 'e': params.endIndex = atoi(optarg); break;
 			case 128: params.dataDir = optarg; break;
 			case 129: params.statusDir = optarg; break;
-			case 130: params.dataDir = optarg; break;
-			case 131: params.outputDir = optarg; break;
+			case 130: params.outputDir = optarg; break;
+			case 131: params.inputFile = optarg; break;
 			case 132: params.inputFile = optarg; break;
 			case 133: params.abcdDistFile = optarg; break;
 			case 134: params.possibleHotspotsFile = optarg; break;
@@ -98,41 +98,72 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 	}
 }
 
-bool DirectoryExists(char* dirName) {
+void StandardizeDirectoryName(std::string &dirName) {
+	if(dirName=="")
+		dirName = "./";			
+	if(*(dirName.end()-1)!='/')
+		dirName += '/';
+}
+
+void StandardizeDirectoryNames(Params &params) {
+	StandardizeDirectoryName(params.dataDir);
+	StandardizeDirectoryName(params.outputDir);
+	StandardizeDirectoryName(params.statusDir);
+}
+
+bool DirectoryExists(const char* dirName) {
 	struct stat sb;	
 	return (stat(dirName, &sb) == 0 && S_ISDIR(sb.st_mode));
+}
+
+void MakeDirectory(std::string dirName) {
+	if(!DirectoryExists(dirName.c_str())) {
+		mode_t mode = S_IRWXU; 
+		if(mkdir(dirName.c_str(), mode) != 0) {
+			fprintf (stderr, "Error: Could not create directory \"%s\".\n", dirName.c_str());
+			exit(EXIT_FAILURE);
+		}
+	}
+}
+
+void MakeDirectoryRecursive(std::string dirName) {
+	if(dirName == "" | dirName == "/")
+		return;
+	
+	int parentSlashPos = dirName.rfind('/',dirName.length()-2);
+	std::string parentDir = dirName.substr(0,parentSlashPos+1);
+	
+	MakeDirectoryRecursive(parentDir);
+	MakeDirectory(dirName);
 }
 
 void ModifyDirectory(std::string &dirName, int start, int end) {
 	char buff[2048];
 	sprintf(buff, "%s%04d-%04d/", dirName.c_str(), start, end);
 	dirName = buff;
-	
-	if(!DirectoryExists(buff)) {
-		mode_t mode = S_IRWXU; 
-		if(mkdir(buff, mode) != 0) {
-			fprintf (stderr, "Error: Could not create directory \"%s\".\n", buff);
-			exit(EXIT_FAILURE);
-		}
-	}
 }
 
 void ModifyDirectoriesForPartialFiles(Params &params) {
 	ModifyDirectory(params.outputDir, params.startIndex, params.endIndex);
-	ModifyDirectory(params.statusDir, params.startIndex, params.endIndex);
 }
 
 int main(int argc, char* argv[]) {
 	Params params = DefaultParams();	
 	ParseArguments(argc, argv, params);
 	PossibleHotspotsDistribution::ValidateIndexLimits(params.startIndex, params.endIndex);
+	StandardizeDirectoryNames(params);
+	
+	bool isPartial = PossibleHotspotsDistribution::IsPartial(params.startIndex, params.endIndex);
+	
+	if(isPartial)		
+	   ModifyDirectoriesForPartialFiles(params);
+	
+	MakeDirectoryRecursive(params.outputDir + params.statusDir);
 	
 	printf("===============================================================\n");
 	
-	if(!(params.startIndex == 0 && params.endIndex == 0)) {
+	if(isPartial)
 		printf("GENERATING PARTIAL FILE\n\n");
-		ModifyDirectoriesForPartialFiles(params);
-	}
 	
 #ifdef using_parallel
 	printf("Number of cores:                %4d\n", omp_get_num_procs());
@@ -162,7 +193,7 @@ int main(int argc, char* argv[]) {
 	printf("\n");
 	
 	AbcdSpaceLimits limits(observedHotspots);
-	limits.PrintToFile(params.outputDir + params.limitFile);
+	limits.PrintToFile(params.outputDir + params.limitsFile);
 	limits.PrintToFile(stdout);
 	printf("\n");
 	
@@ -171,7 +202,7 @@ int main(int argc, char* argv[]) {
 	printf("\n");
 	
 	PossibleHotspotsDistribution possibleHotspots(observedHotspots, limits, params.gridRes, params.increment, params.interval, 
-												  params.statusDir, params.startIndex, params.endIndex);
+												  params.outputDir + params.statusDir, params.startIndex, params.endIndex);
 	possibleHotspots.PrintToFile(params.outputDir + params.possibleHotspotsFile);
 	
 	return EXIT_SUCCESS;
