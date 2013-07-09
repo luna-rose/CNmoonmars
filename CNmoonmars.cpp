@@ -127,7 +127,7 @@ void MakeDirectory(std::string dirName) {
 }
 
 void MakeDirectoryRecursive(std::string dirName) {
-	if(dirName == "" | dirName == "/")
+	if(dirName == "" || dirName == "/")
 		return;
 	
 	int parentSlashPos = dirName.rfind('/',dirName.length()-2);
