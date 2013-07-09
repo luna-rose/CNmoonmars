@@ -17,15 +17,19 @@ public:
 	void PrintToFile(std::string filename);
 	
 	static void ValidateIndexLimits(int startIndex, int endIndex);
+	static void AdjustStartEndIndices(AbcdSpaceLimits limits, int &startIndex, int &endIndex);
 	static bool IsPartial(int startIndex, int endIndex);
-	
+		
 private:
+	PossibleHotspotsDistribution(int startIndex, int endIndex); 
+
 	void CalculatePossibleHotspotCoords(AbcdSpaceLimits limits);
 	void AccumulateProbabilities(AbcdSpaceProbabilityDistribution* abcdDistribution);
 	void Normalize();
 	
 	void PrintStatusFile(char* buff, char* filename);
 	
+	void AdjustStartEndIndices();
 	bool IsPartial();
 	
 	std::vector <HotspotCoordsWithProbability> possibleHotspots;

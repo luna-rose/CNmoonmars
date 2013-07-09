@@ -143,27 +143,13 @@ void ModifyDirectory(std::string &dirName, int start, int end) {
 	dirName = buff;
 }
 
-void ModifyDirectoriesForPartialFiles(Params &params) {
-	ModifyDirectory(params.outputDir, params.startIndex, params.endIndex);
-}
-
 int main(int argc, char* argv[]) {
 	Params params = DefaultParams();	
 	ParseArguments(argc, argv, params);
 	PossibleHotspotsDistribution::ValidateIndexLimits(params.startIndex, params.endIndex);
 	StandardizeDirectoryNames(params);
 	
-	bool isPartial = PossibleHotspotsDistribution::IsPartial(params.startIndex, params.endIndex);
-	
-	if(isPartial)		
-	   ModifyDirectoriesForPartialFiles(params);
-	
-	MakeDirectoryRecursive(params.outputDir + params.statusDir);
-	
 	printf("===============================================================\n");
-	
-	if(isPartial)
-		printf("GENERATING PARTIAL FILE\n\n");
 	
 #ifdef using_parallel
 	printf("Number of cores:                %4d\n", omp_get_num_procs());
@@ -174,33 +160,46 @@ int main(int argc, char* argv[]) {
 	printf("Grid increment:                 %4d\n", params.increment);
 	printf("Abcd space chunking interval:   %4d\n\n", params.interval);
 	
-	if(!(params.startIndex == 0 && params.endIndex == 0)) {
-		printf("Start index:                    %4d\n", params.startIndex);
-		printf("End index:                      %4d\n\n", params.endIndex);
-	}
-	
 	std::string infile = params.dataDir + params.inputFile;
-	std::string outfile = params.outputDir + params.inputFile;
-	
 	printf("Input file is \"%s\".\n", infile.c_str());
-	std::ifstream src(infile.c_str());
-	std::ofstream dst(outfile.c_str());
-	dst << src.rdbuf();
-	printf("Copied input file to \"%s\".\n\n", outfile.c_str());
 	
 	ObservedHotspots observedHotspots(infile);
 	observedHotspots.Iterate(PrintCoord, NULL);
 	printf("\n");
 	
 	AbcdSpaceLimits limits(observedHotspots);
-	limits.PrintToFile(params.outputDir + params.limitsFile);
 	limits.PrintToFile(stdout);
+	printf("\n");
+	
+	printf("Checking whether to generate a partial file, based on # of possible hotspots.\n");
+	PossibleHotspotsDistribution::AdjustStartEndIndices(limits, params.startIndex, params.endIndex);
+	bool isPartial = PossibleHotspotsDistribution::IsPartial(params.startIndex, params.endIndex);
+	printf("\n");
+	
+	if(isPartial)
+		ModifyDirectory(params.outputDir, params.startIndex, params.endIndex);
+	
+	MakeDirectoryRecursive(params.outputDir + params.statusDir);
+	
+	if(isPartial) {
+		printf("GENERATING PARTIAL FILE\n");
+		printf("Start index:                    %4d\n", params.startIndex);
+		printf("End index:                      %4d\n\n", params.endIndex);
+	}
+	
+	std::string outfile = params.outputDir + params.inputFile;
+	std::ifstream src(infile.c_str());
+	std::ofstream dst(outfile.c_str());
+	dst << src.rdbuf();
+	printf("Copied input file to \"%s\".\n", outfile.c_str());
+	
+	limits.PrintToFile(params.outputDir + params.limitsFile);
 	printf("\n");
 	
 	AbcdSpaceProbabilityDistribution abcdDist(observedHotspots, limits, 1, 5);
 	abcdDist.PrintToFile(params.outputDir + params.abcdDistFile);
 	printf("\n");
-	
+
 	PossibleHotspotsDistribution possibleHotspots(observedHotspots, limits, params.gridRes, params.increment, params.interval, 
 												  params.outputDir + params.statusDir, params.startIndex, params.endIndex);
 	possibleHotspots.PrintToFile(params.outputDir + params.possibleHotspotsFile);

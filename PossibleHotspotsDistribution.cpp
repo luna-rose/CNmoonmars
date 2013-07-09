@@ -2,6 +2,13 @@
 #include <cmath>
 #include "PossibleHotspotsDistribution.h"
 
+PossibleHotspotsDistribution::PossibleHotspotsDistribution(int inStartIndex, int inEndIndex) :
+	startIndex(inStartIndex),
+	endIndex(inEndIndex)
+{
+	ValidateIndexLimits(startIndex, endIndex);
+}
+
 PossibleHotspotsDistribution::PossibleHotspotsDistribution(AbcdSpaceLimits limits, AbcdSpaceProbabilityDistribution* abcdDistribution) :
 	startIndex(0),
 	endIndex(0)
@@ -105,6 +112,26 @@ bool PossibleHotspotsDistribution::IsPartial() {
 	return IsPartial(startIndex, endIndex);
 }
 
+void PossibleHotspotsDistribution::AdjustStartEndIndices() {
+	if (startIndex > possibleHotspots.size())
+		startIndex = possibleHotspots.size();
+	if (endIndex > possibleHotspots.size())
+		endIndex = possibleHotspots.size();
+	
+	if (startIndex == 1 && endIndex == possibleHotspots.size()) {
+		startIndex = 0;
+		endIndex = 0;
+	}
+}
+
+void PossibleHotspotsDistribution::AdjustStartEndIndices(AbcdSpaceLimits limits, int &startIndex, int &endIndex)
+{
+	PossibleHotspotsDistribution possibleHotspots(startIndex, endIndex);
+	possibleHotspots.CalculatePossibleHotspotCoords(limits);
+	startIndex = possibleHotspots.startIndex;
+	endIndex = possibleHotspots.endIndex;
+}
+
 void PossibleHotspotsDistribution::ValidateIndexLimits(int startIndex, int endIndex) {
 	if(!IsPartial(startIndex, endIndex))
 		return;
@@ -153,6 +180,8 @@ void PossibleHotspotsDistribution::CalculatePossibleHotspotCoords(AbcdSpaceLimit
 	}
 	
 	printf("Found %zu possible hotspots.\n", possibleHotspots.size());
+	
+	AdjustStartEndIndices();
 }
 
 void PossibleHotspotsDistribution::AccumulateProbabilities(AbcdSpaceProbabilityDistribution* abcdDistribution) {
@@ -160,14 +189,8 @@ void PossibleHotspotsDistribution::AccumulateProbabilities(AbcdSpaceProbabilityD
 	int end = possibleHotspots.size() - 1;
 	
 	if (IsPartial()) {
-		if (startIndex - 1 < end)
-			start = startIndex - 1;
-		else {
-			start = end;
-		}
-
-		if (endIndex - 1 < end)
-			end = endIndex - 1;
+		start = startIndex - 1;
+		end = endIndex - 1;
 	}
 	
 	#ifdef using_parallel
