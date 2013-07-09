@@ -113,12 +113,12 @@ bool PossibleHotspotsDistribution::IsPartial() {
 }
 
 void PossibleHotspotsDistribution::AdjustStartEndIndices() {
-	if (startIndex > possibleHotspots.size())
+	if (startIndex > (int)possibleHotspots.size())
 		startIndex = possibleHotspots.size();
-	if (endIndex > possibleHotspots.size())
+	if (endIndex > (int)possibleHotspots.size())
 		endIndex = possibleHotspots.size();
 	
-	if (startIndex == 1 && endIndex == possibleHotspots.size()) {
+	if (startIndex == 1 && endIndex == (int)possibleHotspots.size()) {
 		startIndex = 0;
 		endIndex = 0;
 	}
