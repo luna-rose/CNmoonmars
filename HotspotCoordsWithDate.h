@@ -9,6 +9,8 @@ typedef short Year;
 
 class HotspotCoordsWithDate : public HotspotCoords {
 public:
+	void Print();
+	
 	Month month;
 	Year year;
 };
