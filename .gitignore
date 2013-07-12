@@ -15,6 +15,7 @@
 # Compiled Binaries
 CNmoonmars
 CNmoonmarsCountPoints
+CNmoonmarsReassemble
 
 # Backup Makefile
 Makefile.bak

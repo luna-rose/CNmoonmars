@@ -10,7 +10,7 @@ CC = g++
 DEBUG = -g
 CFLAGS = -Wall $(DEBUG) -O3 $(PARFLAGS)
 LFLAGS = $(CFLAGS)
-PROGS = CNmoonmars CNmoonmarsCountPoints
+PROGS = CNmoonmars CNmoonmarsCountPoints CNmoonmarsReassemble
 SRCS = $(wildcard *.cpp)
 INCL_OBJS = $(filter-out $(PROGS:%=%.o),$(SRCS:.cpp=.o))
 
