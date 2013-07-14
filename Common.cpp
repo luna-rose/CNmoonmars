@@ -1,5 +1,8 @@
 #include "Common.h"
 
-void PrintCoord(HotspotCoordsWithDate coord, void* data) {
-	coord.Print();
+void StandardizeDirectoryName(std::string &dirName) {
+	if(dirName=="")
+		dirName = "./";			
+	if(*(dirName.end()-1)!='/')
+		dirName += '/';
 }

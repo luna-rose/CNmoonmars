@@ -98,11 +98,8 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 	}
 }
 
-void StandardizeDirectoryName(std::string &dirName) {
-	if(dirName=="")
-		dirName = "./";			
-	if(*(dirName.end()-1)!='/')
-		dirName += '/';
+void PrintCoord(HotspotCoordsWithDate coord, void* data) {
+	coord.Print();
 }
 
 void StandardizeDirectoryNames(Params &params) {
@@ -137,7 +134,7 @@ void MakeDirectoryRecursive(std::string dirName) {
 	MakeDirectory(dirName);
 }
 
-void ModifyDirectory(std::string &dirName, int start, int end) {
+void ModifyDirectoryName(std::string &dirName, int start, int end) {
 	char buff[2048];
 	sprintf(buff, "%s%04d-%04d/", dirName.c_str(), start, end);
 	dirName = buff;
@@ -177,7 +174,7 @@ int main(int argc, char* argv[]) {
 	printf("\n");
 	
 	if(isPartial)
-		ModifyDirectory(params.outputDir, params.startIndex, params.endIndex);
+		ModifyDirectoryName(params.outputDir, params.startIndex, params.endIndex);
 	
 	MakeDirectoryRecursive(params.outputDir + params.statusDir);
 	

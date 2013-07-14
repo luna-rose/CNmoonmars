@@ -6,7 +6,7 @@
 
 typedef long double Double;
 
-void PrintCoord(HotspotCoordsWithDate coord, void* data);
+void StandardizeDirectoryName(std::string &dirName);
 
 
 #endif
