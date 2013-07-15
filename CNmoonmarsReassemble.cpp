@@ -103,11 +103,6 @@ std::vector<std::string> GetPartialSubdirectories(std::string dirName) {
 void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::string resultsDir, std::string possibleHotspotsFilename) {
 	std::vector<PartialFile*> partialFiles;
 	
-	if (partialDirs.empty()) {
-		printf("Error: No directories found containg partial results.\n");
-		exit(EXIT_FAILURE);
-	}
-	
 	//
 	// open files
 	//
@@ -321,7 +316,7 @@ void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::stri
 	}
 	
 	fclose(file);	
-	printf("Printed combined with with %zu hotspots to file: \"%s\".\n", possibleHotspots.size(), filename.c_str());
+	printf("Printed combined distribution with %zu hotspots to file: \"%s\".\n\n", possibleHotspots.size(), filename.c_str());
 	
 	//
 	// Close files
@@ -333,16 +328,101 @@ void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::stri
 	}
 }
 
+int GetFileBytes(std::string filename, char* &bytes) {
+	// open the file
+	FILE* file = fopen(filename.c_str(), "r");
+	if(!file) {
+		printf("Error: Could not open file for reading: \"%s\"\n", filename.c_str());
+		exit(EXIT_FAILURE);
+	}
+	
+	// obtain file size:
+	fseek (file , 0 , SEEK_END);
+	int fileSize = ftell (file);
+	rewind(file);
+	
+	// allocate memory to contain the whole file:
+	bytes = (char*) malloc (sizeof(char)*(fileSize+1));
+	if(!bytes) {
+		printf("Error: Could not malloc bytes for reading \"%s\".\n", filename.c_str());
+		exit(EXIT_FAILURE);
+	}
+	
+	bytes[fileSize] = '\0';
+	
+	// copy the file into the buffer:
+	int result = fread (bytes, 1, fileSize, file);
+	if(result != fileSize) {
+		printf("Error: Could not read all %d bytes from file \"%s\".\n", fileSize, filename.c_str());
+		exit(EXIT_FAILURE);
+	}
+	
+	fclose (file);
+	return fileSize;
+}
+
+void VerifyAndCopyMatchingFiles(std::vector<std::string> directories, std::string resultsDir, std::string filename) {
+	char* bytes;
+	std::string firstFullFileName = *(directories.begin())+filename;
+	int fileSize = GetFileBytes(firstFullFileName, bytes);
+	
+	for (std::vector<std::string>::iterator dir=directories.begin(); dir<directories.end(); dir++) {
+		char* bytesCurr;
+		std::string fullFileName = *dir+filename;
+		int fileSizeCurr = GetFileBytes(fullFileName, bytesCurr);
+		
+		if(fileSize!=fileSizeCurr) {
+			printf("Error: Files do not have the same size:\n");
+			printf("%s\n", firstFullFileName.c_str());
+			printf("%s\n",  fullFileName.c_str());
+			exit(EXIT_FAILURE);
+		}
+		
+		if(strcmp(bytes, bytesCurr) != 0) {
+			printf("Error: Files do not match:\n");
+			printf("%s\n", firstFullFileName.c_str());
+			printf("%s\n", fullFileName.c_str());
+			exit(EXIT_FAILURE);
+		}
+		
+		free(bytesCurr);
+	}
+	
+	std::string outFileName = resultsDir + filename;
+	FILE* file = fopen(outFileName.c_str(), "w");
+	if(!file) {
+		printf("Error: Could not open file for writing: \"%s\"\n", filename.c_str());
+		exit(EXIT_FAILURE);
+	}
+	
+	fwrite(bytes, 1, fileSize, file);
+	
+	fclose(file);
+	printf("Output file: \"%s\".\n", outFileName.c_str());
+	
+	free(bytes);
+}
+
 int main(int argc, char* argv[]) {
 	Params params = DefaultParams();	
 	ParseArguments(argc, argv, params);
 	StandardizeDirectoryNames(params);
 	
-	std::vector<std::string> partialDirs = GetPartialSubdirectories(params.resultsDir);
-	
 	printf("==========================================================================================\n");
 	
+	std::vector<std::string> partialDirs = GetPartialSubdirectories(params.resultsDir);
+	if (partialDirs.empty()) {
+		printf("Error: No directories found containg partial results.\n");
+		exit(EXIT_FAILURE);
+	}
+	
 	CombinePossibleHotspotFiles(partialDirs, params.resultsDir, params.possibleHotspotsFilename);
+	
+	VerifyAndCopyMatchingFiles(partialDirs, params.resultsDir, params.inputFilename);
+	VerifyAndCopyMatchingFiles(partialDirs, params.resultsDir, params.limitsFilename);
+	VerifyAndCopyMatchingFiles(partialDirs, params.resultsDir, params.abcdDistFilename);
+	
+	printf("\nResults reassembled successfully.\n");
 	
 	return EXIT_SUCCESS;
 }
