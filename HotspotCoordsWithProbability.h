@@ -7,6 +7,8 @@
 
 class HotspotCoordsWithProbability : public HotspotCoords {
 public:
+	std::string ToString();
+	
 	Double prob;
 };
 

@@ -220,7 +220,7 @@ void PossibleHotspotsDistribution::PrintToFile(std::string filename){
 	
 	for(std::vector<HotspotCoordsWithProbability>::iterator it = possibleHotspots.begin(); it<possibleHotspots.end(); it++){
 		HotspotCoordsWithProbability coords = *it;
-		fprintf(file, "%6d%6d%6d%6d%46.36Le\n", coords.moonLat, coords.moonLong, coords.marsLat, coords.marsLong, coords.prob);
+		fprintf(file, "%s\n", coords.ToString().c_str());
 	}
 	
 	fclose(file);
@@ -232,9 +232,13 @@ void PossibleHotspotsDistribution::PrintToFile(std::string filename){
 }
 
 void PossibleHotspotsDistribution::Normalize() {
+	Normalize(&possibleHotspots);	
+}
+
+void PossibleHotspotsDistribution::Normalize(std::vector<HotspotCoordsWithProbability>* points) {
 	Double sumProb = 0;
-	for(std::vector<HotspotCoordsWithProbability>::iterator coord=possibleHotspots.begin(); coord<possibleHotspots.end(); coord++)
+	for(std::vector<HotspotCoordsWithProbability>::iterator coord=points->begin(); coord<points->end(); coord++)
 		sumProb += coord->prob;
-	for(std::vector<HotspotCoordsWithProbability>::iterator coord=possibleHotspots.begin(); coord<possibleHotspots.end(); coord++)
+	for(std::vector<HotspotCoordsWithProbability>::iterator coord=points->begin(); coord<points->end(); coord++)
 		coord->prob /= sumProb;	
 }

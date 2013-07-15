@@ -48,6 +48,11 @@ CNmoonmarsCountPoints.o: Common.h HotspotCoordsWithDate.h HotspotCoords.h
 CNmoonmarsCountPoints.o: Month.h ObservedHotspots.h AbcdSpaceLimits.h
 CNmoonmarsCountPoints.o: AbcdSpaceLimitsInt.h
 CNmoonmarsCountPoints.o: AbcdSpaceProbabilityDistribution.h
+CNmoonmarsReassemble.o: Common.h HotspotCoordsWithDate.h HotspotCoords.h
+CNmoonmarsReassemble.o: Month.h HotspotCoordsWithProbability.h
+CNmoonmarsReassemble.o: PossibleHotspotsDistribution.h AbcdSpaceLimits.h
+CNmoonmarsReassemble.o: ObservedHotspots.h AbcdSpaceLimitsInt.h
+CNmoonmarsReassemble.o: AbcdSpaceProbabilityDistribution.h
 Common.o: Common.h HotspotCoordsWithDate.h HotspotCoords.h Month.h
 HotspotCoords.o: HotspotCoords.h
 HotspotCoordsWithDate.o: HotspotCoordsWithDate.h HotspotCoords.h Month.h

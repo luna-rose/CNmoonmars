@@ -1,12 +1,15 @@
 #include <cstdio>
 #include "HotspotCoordsWithDate.h"
 
-void HotspotCoordsWithDate::Print() {
-	printf("%5d, %5d, %5d, %5d, %5d, %5d\n",
-		   month.value,
-		   year,
-		   moonLat,
-		   moonLong,
-		   marsLat,
-		   marsLong);
+std::string HotspotCoordsWithDate::ToString() {
+	char buff[1024];
+	sprintf(buff, "%5d, %5d, %5d, %5d, %5d, %5d",
+			month.value,
+			year,
+			moonLat,
+			moonLong,
+			marsLat,
+			marsLong);
+	
+	return buff;
 }

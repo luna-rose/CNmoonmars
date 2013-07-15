@@ -19,6 +19,7 @@ public:
 	static void ValidateIndexLimits(int startIndex, int endIndex);
 	static void AdjustStartEndIndices(AbcdSpaceLimits limits, int &startIndex, int &endIndex);
 	static bool IsPartial(int startIndex, int endIndex);
+	static void Normalize(std::vector<HotspotCoordsWithProbability>* points);
 		
 private:
 	PossibleHotspotsDistribution(int startIndex, int endIndex); 

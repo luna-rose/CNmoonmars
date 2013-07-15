@@ -98,19 +98,10 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 	}
 }
 
-void PrintCoord(HotspotCoordsWithDate coord, void* data) {
-	coord.Print();
-}
-
 void StandardizeDirectoryNames(Params &params) {
 	StandardizeDirectoryName(params.dataDir);
 	StandardizeDirectoryName(params.outputDir);
 	StandardizeDirectoryName(params.statusDir);
-}
-
-bool DirectoryExists(const char* dirName) {
-	struct stat sb;	
-	return (stat(dirName, &sb) == 0 && S_ISDIR(sb.st_mode));
 }
 
 void MakeDirectory(std::string dirName) {
@@ -138,6 +129,10 @@ void ModifyDirectoryName(std::string &dirName, int start, int end) {
 	char buff[2048];
 	sprintf(buff, "%s%04d-%04d/", dirName.c_str(), start, end);
 	dirName = buff;
+}
+
+void PrintCoord(HotspotCoordsWithDate coord, void* data) {
+	printf("%s\n", coord.ToString().c_str());
 }
 
 int main(int argc, char* argv[]) {
