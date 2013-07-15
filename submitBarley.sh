@@ -22,7 +22,7 @@ do
 	
     echo `printf "Submitting %04d-%04d, with job size %d to %s ..." $PREVINDEX $CURRINDEX $JOBSIZE $SERVER`
 	
-	./submitBarleySingle $USERNAME $CORNSERVER $SERVER $PASSWORD $PREVINDEX $CURRINDEX $DIRECTORY
+	./submitBarleySingle.sh $USERNAME $CORNSERVER $SERVER $PASSWORD $PREVINDEX $CURRINDEX $DIRECTORY
 	
 	let "PREVINDEX = $CURRINDEX + 1 - $OVERLAP"
 	let "COUNT = COUNT + 1"
