@@ -12,8 +12,6 @@ while true; do
 		-gridRes)				GRIDRES="$2"; shift 2 ;;
 		-increment)				INCREMENT="$2"; shift 2 ;;
 		-interval)				INTERVAL="$2"; shift 2 ;;
-		-startIndex)			STARTINDEX="$2"; shift 2 ;;
-		-endIndex)				ENDINDEX="$2"; shift 2 ;;
 		-dataDir)				DATADIR="$2"; shift 2 ;;
 		-statusDir)				STATUSDIR="$2"; shift 2 ;;
 		-outputDir)				OUTPUTDIR="$2"; shift 2 ;;

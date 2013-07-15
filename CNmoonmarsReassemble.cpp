@@ -103,6 +103,11 @@ std::vector<std::string> GetPartialSubdirectories(std::string dirName) {
 void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::string resultsDir, std::string possibleHotspotsFilename) {
 	std::vector<PartialFile*> partialFiles;
 	
+	if (partialDirs.empty()) {
+		fprintf(stderr, "Error: No directories found containg partial results.\n");
+		exit(EXIT_FAILURE);
+	}
+	
 	//
 	// open files
 	//
