@@ -1,3 +1,4 @@
+#include <cstdio>
 #include "HotspotCoordsWithProbability.h"
 
 std::string HotspotCoordsWithProbability::ToString() {
