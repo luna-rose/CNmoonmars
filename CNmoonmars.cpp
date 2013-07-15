@@ -92,7 +92,7 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 			case 133: params.abcdDistFile = optarg; break;
 			case 134: params.possibleHotspotsFile = optarg; break;
 			default: 
-				fprintf (stderr, "Error: Could not parse arguments.\n");
+				printf("Error: Could not parse arguments.\n");
 				exit(EXIT_FAILURE);
 		}
 	}
@@ -108,7 +108,7 @@ void MakeDirectory(std::string dirName) {
 	if(!DirectoryExists(dirName.c_str())) {
 		mode_t mode = S_IRWXU; 
 		if(mkdir(dirName.c_str(), mode) != 0) {
-			fprintf (stderr, "Error: Could not create directory \"%s\".\n", dirName.c_str());
+			printf("Error: Could not create directory \"%s\".\n", dirName.c_str());
 			exit(EXIT_FAILURE);
 		}
 	}

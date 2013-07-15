@@ -62,7 +62,7 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 			case 133: params.abcdDistFilename = optarg; break;
 			case 134: params.possibleHotspotsFilename = optarg; break;
 			default: 
-				fprintf(stderr, "Error: Could not parse arguments.\n");
+				printf("Error: Could not parse arguments.\n");
 				exit(EXIT_FAILURE);
 		}
 	}
@@ -77,7 +77,7 @@ std::vector<std::string> GetPartialSubdirectories(std::string dirName) {
 	
 	DIR* dirp = opendir(dirName.c_str());
 	if (dirp == NULL) {
-		fprintf(stderr, "Error: Could not open directory: \"%s\"\n", dirName.c_str());
+		printf("Error: Could not open directory: \"%s\"\n", dirName.c_str());
 		exit(EXIT_FAILURE);
 	}
 	
@@ -104,7 +104,7 @@ void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::stri
 	std::vector<PartialFile*> partialFiles;
 	
 	if (partialDirs.empty()) {
-		fprintf(stderr, "Error: No directories found containg partial results.\n");
+		printf("Error: No directories found containg partial results.\n");
 		exit(EXIT_FAILURE);
 	}
 	
@@ -115,7 +115,7 @@ void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::stri
 		const char* filename = (*it + possibleHotspotsFilename).c_str();
 		FILE* file = fopen(filename, "r");
 		if(!file) {
-			fprintf(stderr, "Error: Could not open file for reading: \"%s\"\n", filename);
+			printf("Error: Could not open file for reading: \"%s\"\n", filename);
 			exit(EXIT_FAILURE);
 		}
 		
@@ -136,38 +136,38 @@ void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::stri
 		PartialFile* partialFile = *it;
 		
 		if(fscanf(partialFile->fileStream, "!! THIS IS A PARTIAL FILE !!\n") != 0) {
-			fprintf(stderr, "Error: Could not read \"!! THIS IS A PARTIAL FILE !!\" from file: \"%s\".\n", 
+			printf("Error: Could not read \"!! THIS IS A PARTIAL FILE !!\" from file: \"%s\".\n",
 					partialFile->filename.c_str());
 			exit(EXIT_FAILURE);
 		}
 		
 		if(!fscanf(partialFile->fileStream, "START INDEX = %4d\n", &(partialFile->startIndex))) {
-			fprintf(stderr, "Error: Could not read startIndex from file: \"%s\".\n", partialFile->filename.c_str());
+			printf("Error: Could not read startIndex from file: \"%s\".\n", partialFile->filename.c_str());
 			exit(EXIT_FAILURE);
 		}
 		
 		if(!fscanf(partialFile->fileStream, "END   INDEX = %4d\n", &(partialFile->endIndex))) {
-			fprintf(stderr, "Error: Could not read endIndex from file: \"%s\".\n", partialFile->filename.c_str());
+			printf("Error: Could not read endIndex from file: \"%s\".\n", partialFile->filename.c_str());
 			exit(EXIT_FAILURE);
 		}
 		
 		if(!fscanf(partialFile->fileStream, "GRID  RES   = %4d\n", &(partialFile->gridRes))) {
-			fprintf(stderr, "Error: Could not read gridRes from file: \"%s\".\n", partialFile->filename.c_str());
+			printf("Error: Could not read gridRes from file: \"%s\".\n", partialFile->filename.c_str());
 			exit(EXIT_FAILURE);
 		}
 		
 		if(!fscanf(partialFile->fileStream, "INCREMENT   = %4d\n", &(partialFile->increment))) {
-			fprintf(stderr, "Error: Could not read increment from file: \"%s\".\n", partialFile->filename.c_str());
+			printf("Error: Could not read increment from file: \"%s\".\n", partialFile->filename.c_str());
 			exit(EXIT_FAILURE);
 		}
 		
 		if(!fscanf(partialFile->fileStream, "INTERVAL    = %4d\n\n", &(partialFile->interval))) {
-			fprintf(stderr, "Error: Could not read interval from file: \"%s\".\n", partialFile->filename.c_str());
+			printf("Error: Could not read interval from file: \"%s\".\n", partialFile->filename.c_str());
 			exit(EXIT_FAILURE);
 		}
 		
 		if(fscanf(partialFile->fileStream, "PROBABILITIES ARE NOT NORMALIZED\n\n") != 0) {
-			fprintf(stderr, "Error: Could not read \"PROBABILITIES ARE NOT NORMALIZED\" from file: \"%s\".\n", 
+			printf("Error: Could not read \"PROBABILITIES ARE NOT NORMALIZED\" from file: \"%s\".\n",
 				   partialFile->filename.c_str());
 			exit(EXIT_FAILURE);
 		}
@@ -184,10 +184,10 @@ void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::stri
 		PartialFile* partialFile = *it;
 		PartialFile* initFile = *(partialFiles.begin());
 		if(partialFile->gridRes * initFile->increment != initFile->gridRes * partialFile->increment) {
-			fprintf(stderr, "Error: Incompatible files:\n");
-			fprintf(stderr, "%s has gridRes = %d, increment = %d\n", initFile->filename.c_str(),
+			printf("Error: Incompatible files:\n");
+			printf("%s has gridRes = %d, increment = %d\n", initFile->filename.c_str(),
 				initFile->gridRes, initFile->increment);
-			fprintf(stderr, "%s has gridRes = %d, increment = %d\n", partialFile->filename.c_str(),
+			printf("%s has gridRes = %d, increment = %d\n", partialFile->filename.c_str(),
 				   partialFile->gridRes, partialFile->increment);
 			exit(EXIT_FAILURE);
 		}
@@ -206,9 +206,9 @@ void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::stri
 		for(it = partialFiles.begin(); it < partialFiles.end(); it++) {
 			PartialFile* partialFile = *it;
 			if(feof(partialFile->fileStream) != filesEnded) {
-				fprintf(stderr, "Error: Files have differing number of lines:\n");
-				fprintf(stderr, "%s\n", firstFile->filename.c_str());
-				fprintf(stderr, "%s\n", partialFile->filename.c_str());
+				printf("Error: Files have differing number of lines:\n");
+				printf("%s\n", firstFile->filename.c_str());
+				printf("%s\n", partialFile->filename.c_str());
 				exit(EXIT_FAILURE);
 			}
 		}
@@ -223,27 +223,27 @@ void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::stri
 			PartialFile* partialFile = *it;
 			HotspotCoordsWithProbability newCoord;
 			if(!fscanf(partialFile->fileStream, "%6hd", &(newCoord.moonLat))) {
-				fprintf(stderr, "Error: Could not read moonLat from file: \"%s\".\n", 
+				printf("Error: Could not read moonLat from file: \"%s\".\n",
 						partialFile->filename.c_str());
 				exit(EXIT_FAILURE);
 			}
 			if(!fscanf(partialFile->fileStream, "%6hd", &(newCoord.moonLong))) {
-				fprintf(stderr, "Error: Could not read moonLong from file: \"%s\".\n", 
+				printf("Error: Could not read moonLong from file: \"%s\".\n",
 						partialFile->filename.c_str());
 				exit(EXIT_FAILURE);
 			}
 			if(!fscanf(partialFile->fileStream, "%6hd", &(newCoord.marsLat))) {
-				fprintf(stderr, "Error: Could not read marsLat from file: \"%s\".\n", 
+				printf("Error: Could not read marsLat from file: \"%s\".\n",
 						partialFile->filename.c_str());
 				exit(EXIT_FAILURE);
 			}
 			if(!fscanf(partialFile->fileStream, "%6hd", &(newCoord.marsLong))) {
-				fprintf(stderr, "Error: Could not read marsLong from file: \"%s\".\n", 
+				printf("Error: Could not read marsLong from file: \"%s\".\n",
 						partialFile->filename.c_str());
 				exit(EXIT_FAILURE);
 			}
 			if(!fscanf(partialFile->fileStream, "%46Le\n", &(newCoord.prob))) {
-				fprintf(stderr, "Error: Could not read prob from file: \"%s\".\n", 
+				printf("Error: Could not read prob from file: \"%s\".\n",
 						partialFile->filename.c_str());
 				exit(EXIT_FAILURE);
 			}
@@ -251,10 +251,10 @@ void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::stri
 			if (readCoords) {
 				if (coord.moonLat != newCoord.moonLat || coord.moonLong != newCoord.moonLong ||
 					coord.marsLat != newCoord.marsLat || coord.marsLong != newCoord.marsLong) {
-					fprintf(stderr, "Error: Coordinate mismatch in coordinate %d while reading file \"%s\":\n",
+					printf("Error: Coordinate mismatch in coordinate %d while reading file \"%s\":\n",
 							count+1, partialFile->filename.c_str());
-					fprintf(stderr, "Old: %s.\n", coord.ToString().c_str());
-					fprintf(stderr, "New: %s.\n",  newCoord.ToString().c_str());
+					printf("Old: %s.\n", coord.ToString().c_str());
+					printf("New: %s.\n",  newCoord.ToString().c_str());
 					exit(EXIT_FAILURE);
 				}
 			} else {
@@ -269,10 +269,10 @@ void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::stri
 				count+1 <= partialFile->endIndex) {
 				if (readProb) {
 					if (coord.prob != newCoord.prob) {
-						fprintf(stderr, "Error: Probability mismatch in coordinate %d while reading file \"%s\":\n",
+						printf("Error: Probability mismatch in coordinate %d while reading file \"%s\":\n",
 								count+1, partialFile->filename.c_str());
-						fprintf(stderr, "Old: %s.\n", coord.ToString().c_str());
-						fprintf(stderr, "New: %s.\n",  newCoord.ToString().c_str());
+						printf("Old: %s.\n", coord.ToString().c_str());
+						printf("New: %s.\n",  newCoord.ToString().c_str());
 						exit(EXIT_FAILURE);
 					}
 				} else {
@@ -282,11 +282,11 @@ void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::stri
 			}
 		}
 		if (!readCoords) {
-			fprintf(stderr, "Error: Coordinate %d was not read.\n", count+1);
+			printf("Error: Coordinate %d was not read.\n", count+1);
 			exit(EXIT_FAILURE);
 		}
 		if (!readProb) {
-			fprintf(stderr, "Error: Probability for coordinate %d was not found in any of the files.\n", count+1);
+			printf("Error: Probability for coordinate %d was not found in any of the files.\n", count+1);
 			exit(EXIT_FAILURE);
 		}
 		
@@ -295,7 +295,7 @@ void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::stri
 	}
 	
 	if (count != (int)possibleHotspots.size()) {
-		fprintf(stderr, "Error: Coordinate count, %d, does not match size of coordinate vector, %zu.\n\n", 
+		printf("Error: Coordinate count, %d, does not match size of coordinate vector, %zu.\n\n",
 				count, possibleHotspots.size());
 		exit(EXIT_FAILURE);
 	}
@@ -311,7 +311,7 @@ void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::stri
 	std::string filename = resultsDir + possibleHotspotsFilename;
 	FILE* file = fopen(filename.c_str(), "w");
 	if(!file) {
-		fprintf(stderr, "Error: Could not open file for writing: \"%s\"\n", filename.c_str());
+		printf("Error: Could not open file for writing: \"%s\"\n", filename.c_str());
 		exit(EXIT_FAILURE);
 	}
 	
