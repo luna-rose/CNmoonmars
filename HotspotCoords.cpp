@@ -24,3 +24,28 @@ const short* HotspotCoords::GetNumCoordsArray() {
 	numCoordsArray[3] = NumLongs;
 	return numCoordsArray;
 }
+
+std::string HotspotCoords::ToString() {
+	char buff[1024];
+	sprintf(buff, "%6d%6d%6d%6d",
+			moonLat,
+			moonLong,
+			marsLat,
+			marsLong);
+	
+	return buff;
+}
+
+bool HotspotCoords::Compare(HotspotCoords a, HotspotCoords b) {
+	HotspotCoords tmp = a;
+	a = b;
+	b = tmp;
+	
+	if(a.moonLat != b.moonLat)
+		return a.moonLat < b.moonLat;
+	if(a.moonLong != b.moonLong)
+		return a.moonLong < b.moonLong;
+	if(a.marsLat != b.marsLat)
+		return a.marsLat < b.marsLat;
+	return a.marsLong < b.marsLong;
+}

@@ -9,6 +9,14 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(int inStartIndex, int
 	ValidateIndexLimits(startIndex, endIndex);
 }
 
+PossibleHotspotsDistribution::PossibleHotspotsDistribution(AbcdSpaceLimits limits, bool nonremovable) :
+startIndex(0),
+endIndex(0)
+{
+	ValidateIndexLimits(startIndex, endIndex);
+	CalculatePossibleHotspotCoords(limits, nonremovable);
+}
+
 PossibleHotspotsDistribution::PossibleHotspotsDistribution(AbcdSpaceLimits limits, AbcdSpaceProbabilityDistribution* abcdDistribution) :
 	startIndex(0),
 	endIndex(0)
@@ -143,7 +151,7 @@ void PossibleHotspotsDistribution::ValidateIndexLimits(int startIndex, int endIn
 	exit(EXIT_FAILURE);
 }
 
-void PossibleHotspotsDistribution::CalculatePossibleHotspotCoords(AbcdSpaceLimits limits) {
+void PossibleHotspotsDistribution::CalculatePossibleHotspotCoords(AbcdSpaceLimits limits, bool nonremovable) {
 	Coord minLat = HotspotCoords::MinLat;
 	Coord maxLat = HotspotCoords::MaxLat;
 	Coord minLong = HotspotCoords::MinLong;
@@ -152,19 +160,19 @@ void PossibleHotspotsDistribution::CalculatePossibleHotspotCoords(AbcdSpaceLimit
 	for (Coord moonLat = minLat; moonLat <= maxLat; moonLat ++) {
 		HotspotCoordsWithProbability coords;
 		coords.moonLat = moonLat;
-		if (limits.CheckHotspot(coords)) {
+		if (limits.CheckHotspot(coords, nonremovable)) {
 			
 			for (Coord moonLong = minLong; moonLong <= maxLong; moonLong ++) {
 				coords.moonLong = moonLong;
-				if (limits.CheckHotspot(coords)) {
+				if (limits.CheckHotspot(coords, nonremovable)) {
 					
 					for (Coord marsLat = minLat; marsLat <= maxLat; marsLat ++) {
 						coords.marsLat = marsLat;
-						if (limits.CheckHotspot(coords)) {
+						if (limits.CheckHotspot(coords, nonremovable)) {
 							
 							for (Coord marsLong = minLong; marsLong <= maxLong; marsLong ++) {
 								coords.marsLong = marsLong;
-								if (limits.CheckHotspot(coords)) {
+								if (limits.CheckHotspot(coords, nonremovable)) {
 									coords.prob = 0;
 									possibleHotspots.push_back(coords);
 								}
@@ -201,7 +209,7 @@ void PossibleHotspotsDistribution::AccumulateProbabilities(AbcdSpaceProbabilityD
 	}
 }
 
-void PossibleHotspotsDistribution::PrintToFile(std::string filename){
+void PossibleHotspotsDistribution::PrintToFile(std::string filename, bool printProbs){
 	FILE* file = fopen(filename.c_str(), "w");
 	if(!file) {
 		printf("Error: Could not open file for writing: \"%s\"\n", filename.c_str());
@@ -220,12 +228,17 @@ void PossibleHotspotsDistribution::PrintToFile(std::string filename){
 	
 	for(std::vector<HotspotCoordsWithProbability>::iterator it = possibleHotspots.begin(); it<possibleHotspots.end(); it++){
 		HotspotCoordsWithProbability coords = *it;
-		fprintf(file, "%s\n", coords.ToString().c_str());
+		std::string coordStr;
+		if(printProbs)
+			coordStr = coords.ToString();
+		else
+			coordStr = ((HotspotCoords)coords).ToString();
+		fprintf(file, "%s\n", coordStr.c_str());
 	}
 	
 	fclose(file);
 	
-	printf("Printed possible hotspots with probabilities to file: \"%s\".\n", filename.c_str());
+	printf("Printed hotspots with probabilities to file: \"%s\".\n", filename.c_str());
 	if(IsPartial()) {
 		printf("Generated partial file from index %d to %d.\n", startIndex, endIndex);
 	}
@@ -241,4 +254,16 @@ void PossibleHotspotsDistribution::Normalize(std::vector<HotspotCoordsWithProbab
 		sumProb += coord->prob;
 	for(std::vector<HotspotCoordsWithProbability>::iterator coord=points->begin(); coord<points->end(); coord++)
 		coord->prob /= sumProb;	
+}
+
+Double PossibleHotspotsDistribution::GetTotalProbability(PossibleHotspotsDistribution points) {
+	std::vector<HotspotCoordsWithProbability> allPoints = possibleHotspots;
+	std::vector<HotspotCoordsWithProbability> selectedPoints = points.possibleHotspots;
+	
+	std::sort(allPoints.begin(), allPoints.end(), HotspotCoords::Compare);
+	std::sort(selectedPoints.begin(), selectedPoints.end(), HotspotCoords::Compare);
+	
+	//TODO: finish calculating probability
+	
+	return 1;
 }

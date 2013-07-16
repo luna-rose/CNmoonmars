@@ -27,6 +27,7 @@ struct Params {
 	std::string limitsFile;
 	std::string abcdDistFile;
 	std::string possibleHotspotsFile;
+	std::string nonremovableHotspotsFile;
 };
 
 Params DefaultParams() {
@@ -52,6 +53,7 @@ Params DefaultParams() {
 	params.limitsFile = "limits.txt";
 	params.abcdDistFile = "abcdspaceprob.txt";
 	params.possibleHotspotsFile = "possiblehotspots.txt";
+	params.nonremovableHotspotsFile = "nonremovable-possiblehotspots.txt";
 	
 	return params;
 }
@@ -59,18 +61,19 @@ Params DefaultParams() {
 void ParseArguments(int argc, char* argv[], Params &params) {
 	static struct option long_options[] =
 	{
-		{"gridRes",					required_argument, NULL, 'g'},
-		{"increment",				required_argument, NULL, 'c'},
-		{"interval",				required_argument, NULL, 't'},
-		{"startIndex",				required_argument, NULL, 's'},
-		{"endIndex",				required_argument, NULL, 'e'},
-		{"dataDir",					required_argument, NULL, 128},
-		{"statusDir",				required_argument, NULL, 129},
-		{"outputDir",				required_argument, NULL, 130},
-		{"inputFile",				required_argument, NULL, 131},
-		{"limitsFile",				required_argument, NULL, 132},
-		{"abcdDistFile",			required_argument, NULL, 133},
-		{"possibleHotspotsFile",	required_argument, NULL, 134},
+		{"gridRes",						required_argument, NULL, 'g'},
+		{"increment",					required_argument, NULL, 'c'},
+		{"interval",					required_argument, NULL, 't'},
+		{"startIndex",					required_argument, NULL, 's'},
+		{"endIndex",					required_argument, NULL, 'e'},
+		{"dataDir",						required_argument, NULL, 128},
+		{"statusDir",					required_argument, NULL, 129},
+		{"outputDir",					required_argument, NULL, 130},
+		{"inputFile",					required_argument, NULL, 131},
+		{"limitsFile",					required_argument, NULL, 132},
+		{"abcdDistFile",				required_argument, NULL, 133},
+		{"possibleHotspotsFile",		required_argument, NULL, 134},
+		{"nonremovableHotspotsFile",	required_argument, NULL, 135},
 		{0, 0, 0, 0}
 	};
 	
@@ -91,6 +94,7 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 			case 132: params.inputFile = optarg; break;
 			case 133: params.abcdDistFile = optarg; break;
 			case 134: params.possibleHotspotsFile = optarg; break;
+			case 135: params.nonremovableHotspotsFile = optarg; break;
 			default: 
 				printf("Error: Could not parse arguments.\n");
 				exit(EXIT_FAILURE);
@@ -195,6 +199,14 @@ int main(int argc, char* argv[]) {
 	PossibleHotspotsDistribution possibleHotspots(observedHotspots, limits, params.gridRes, params.increment, params.interval, 
 												  params.outputDir + params.statusDir, params.startIndex, params.endIndex);
 	possibleHotspots.PrintToFile(params.outputDir + params.possibleHotspotsFile);
+	
+	if(!isPartial) {
+		printf("\nFinding nonremovable possible hotspots:\n");
+		PossibleHotspotsDistribution nonremovableHotspots(limits, true);
+		nonremovableHotspots.PrintToFile(params.outputDir + params.nonremovableHotspotsFile, false);
+		Double accumProb = possibleHotspots.GetTotalProbability(possibleHotspots);
+		printf("\nProbability of getting a nonremovable point next month: %Lf%%\n", 100*accumProb);
+	}
 	
 	return EXIT_SUCCESS;
 }

@@ -49,7 +49,7 @@ AbcdSpaceLimitsInt AbcdSpaceLimits::GenerateAbcdSpaceLimitsInt(int scale) {
 	return returnval;
 }
 
-bool AbcdSpaceLimits::CheckHotspot(HotspotCoords coord) {
+bool AbcdSpaceLimits::CheckHotspot(HotspotCoords coord, bool matchEntireAllowedSpace) {
 	Coord* coordArray = coord.GetCoordArray();
 	const short* numCoordsArray = HotspotCoords::GetNumCoordsArray();
 	AbcdSpaceLimitsInt limitsInt = GenerateAbcdSpaceLimitsInt(1); 
@@ -63,7 +63,8 @@ bool AbcdSpaceLimits::CheckHotspot(HotspotCoords coord) {
 					while (newLimit >= 1.0) newLimit -= 1.0;
 					int LimitFactor = HotspotCoords::NumLats*HotspotCoords::NumLongs;
 					int intNewLim = (int)(newLimit*LimitFactor + 0.5);
-					if(intNewLim <= LimitFactor-limitsInt.limits[j][i]) {
+					if((!matchEntireAllowedSpace && (intNewLim <= LimitFactor-limitsInt.limits[j][i])) ||
+					   (matchEntireAllowedSpace && (intNewLim < limitsInt.limits[i][j]))){
 						delete(coordArray);
 						delete(numCoordsArray);
 						return false;

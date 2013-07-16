@@ -16,7 +16,7 @@ public:
 	void PrintToFile(FILE* file);
 	
 	AbcdSpaceLimitsInt GenerateAbcdSpaceLimitsInt(int scale);
-	bool CheckHotspot(HotspotCoords coords);
+	bool CheckHotspot(HotspotCoords coords, bool matchEntireAllowedSpace);
 	
 private:
 	void static AdjustLimitsSingleHotspot(HotspotCoordsWithDate coord, void* data);

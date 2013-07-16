@@ -3,6 +3,7 @@
 
 
 #include <climits>
+#include <string>
 
 typedef short Coord;
 
@@ -10,8 +11,12 @@ class HotspotCoords {
 public:
 	HotspotCoords();
 	
+	std::string ToString();
+	
 	Coord* GetCoordArray();
 	static const short* GetNumCoordsArray();
+	
+	static bool Compare(HotspotCoords a, HotspotCoords b);
 	
 	static const Coord MissingCoord = SHRT_MAX;
 	

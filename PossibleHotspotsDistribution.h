@@ -10,11 +10,13 @@
 
 class PossibleHotspotsDistribution {
 public:
+	PossibleHotspotsDistribution(AbcdSpaceLimits limits, bool nonremovable);
 	PossibleHotspotsDistribution(AbcdSpaceLimits limits, AbcdSpaceProbabilityDistribution* abcdDistribution); 
 	PossibleHotspotsDistribution(ObservedHotspots observedHotspots, AbcdSpaceLimits limits, 
 								 int gridRes, int increment, int interval, std::string directory="/dev/null", int startIndex=0, int endIndex=0);
 	
-	void PrintToFile(std::string filename);
+	void PrintToFile(std::string filename, bool printProbs = true);
+	Double GetTotalProbability(PossibleHotspotsDistribution points);
 	
 	static void ValidateIndexLimits(int startIndex, int endIndex);
 	static void AdjustStartEndIndices(AbcdSpaceLimits limits, int &startIndex, int &endIndex);
@@ -24,7 +26,7 @@ public:
 private:
 	PossibleHotspotsDistribution(int startIndex, int endIndex); 
 
-	void CalculatePossibleHotspotCoords(AbcdSpaceLimits limits);
+	void CalculatePossibleHotspotCoords(AbcdSpaceLimits limits, bool nonremovable = false);
 	void AccumulateProbabilities(AbcdSpaceProbabilityDistribution* abcdDistribution);
 	void Normalize();
 	
