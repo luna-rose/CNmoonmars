@@ -2,6 +2,14 @@
 #include <cmath>
 #include "PossibleHotspotsDistribution.h"
 
+PossibleHotspotsDistribution::PossibleHotspotsDistribution(std::vector<HotspotCoordsWithProbability>* points) :
+startIndex(0),
+endIndex(0)
+{
+	ValidateIndexLimits(startIndex, endIndex);
+	possibleHotspots = *points;
+}
+
 PossibleHotspotsDistribution::PossibleHotspotsDistribution(int inStartIndex, int inEndIndex) :
 	startIndex(inStartIndex),
 	endIndex(inEndIndex)
@@ -263,7 +271,45 @@ Double PossibleHotspotsDistribution::GetTotalProbability(PossibleHotspotsDistrib
 	std::sort(allPoints.begin(), allPoints.end(), HotspotCoords::Compare);
 	std::sort(selectedPoints.begin(), selectedPoints.end(), HotspotCoords::Compare);
 	
-	//TODO: finish calculating probability
+	std::vector<HotspotCoordsWithProbability>::iterator itAll = allPoints.begin();
+	std::vector<HotspotCoordsWithProbability>::iterator itSel = selectedPoints.begin();
 	
-	return 1;
+	int matchedPoints = 0;
+	Double totalProb = 0;
+	while (true) {
+		if(itSel == selectedPoints.end()) {
+			break;
+		}
+		
+		if(itAll == allPoints.end()) {
+			printf("Error: Reached end of point list with selected points remaining.\n");
+			printf("Next selected point is: %s.\n", ((HotspotCoords)(*itSel)).ToString().c_str());
+			exit(EXIT_FAILURE);
+		}
+		
+		// *itAll < *itSel
+		if(HotspotCoords::Compare(*itAll, *itSel)) {
+			itAll++;
+			continue;
+		}
+		   
+		// *itAll > *itSel
+		if(HotspotCoords::Compare(*itSel, *itAll)) {
+			printf("Error: Could not match selected point: %s.\n", ((HotspotCoords)(*itSel)).ToString().c_str());
+			exit(EXIT_FAILURE);
+		}
+		
+		// points are equal
+		totalProb += itAll->prob;
+		matchedPoints++;
+		itAll++;
+		itSel++;
+	}
+	if (matchedPoints != (int)selectedPoints.size()) {
+		printf("Error: Matched point count, %d, does not match total number of selected points, %zu.\n", 
+			   matchedPoints, selectedPoints.size());
+		exit(EXIT_FAILURE);
+	}
+	
+	return totalProb;
 }

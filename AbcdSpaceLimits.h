@@ -10,7 +10,7 @@
 
 class AbcdSpaceLimits {
 public:
-	AbcdSpaceLimits(ObservedHotspots observedHotspots);
+	AbcdSpaceLimits(ObservedHotspots observedHotspots, bool printOut = true);
 	
 	void PrintToFile(std::string filename);
 	void PrintToFile(FILE* file);
@@ -20,7 +20,7 @@ public:
 	
 private:
 	void static AdjustLimitsSingleHotspot(HotspotCoordsWithDate coord, void* data);
-	void PairwiseCombineLimits();
+	void PairwiseCombineLimits(bool printOut);
 	
 	// limits indicates how much higher 
 	// the first index is above the second one

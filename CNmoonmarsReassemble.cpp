@@ -27,6 +27,8 @@ struct Params {
 	std::string limitsFilename;
 	std::string abcdDistFilename;
 	std::string possibleHotspotsFilename;
+	std::string nonremovableHotspotsFile;
+	std::string nonremovableProbFile;
 };
 
 Params DefaultParams() {
@@ -38,6 +40,8 @@ Params DefaultParams() {
 	params.limitsFilename = "limits.txt";
 	params.abcdDistFilename = "abcdspaceprob.txt";
 	params.possibleHotspotsFilename = "possiblehotspots.txt";
+	params.nonremovableHotspotsFile = "possiblehotspots-nonremovable.txt";
+	params.nonremovableProbFile = "nonremovable-prob.txt";
 	
 	return params;
 }
@@ -50,6 +54,8 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 		{"limitsFilename",				required_argument, NULL, 132},
 		{"abcdDistFilename",			required_argument, NULL, 133},
 		{"possibleHotspotsFilename",	required_argument, NULL, 134},
+		{"nonremovableHotspotsFile",	required_argument, NULL, 135},
+		{"nonremovableProbFile",		required_argument, NULL, 136},
 		{0, 0, 0, 0}
 	};
 	
@@ -63,6 +69,8 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 			case 132: params.inputFilename = optarg; break;
 			case 133: params.abcdDistFilename = optarg; break;
 			case 134: params.possibleHotspotsFilename = optarg; break;
+			case 135: params.nonremovableHotspotsFile = optarg; break;
+			case 136: params.nonremovableProbFile = optarg; break;
 			default: 
 				printf("Error: Could not parse arguments.\n");
 				exit(EXIT_FAILURE);
@@ -102,7 +110,7 @@ std::vector<std::string> GetPartialSubdirectories(std::string dirName) {
 	return result;
 }
 
-void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::string resultsDir, std::string possibleHotspotsFilename) {
+std::vector<HotspotCoordsWithProbability>* CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::string resultsDir, std::string possibleHotspotsFilename) {
 	std::vector<PartialFile*> partialFiles;
 	
 	//
@@ -193,7 +201,8 @@ void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::stri
 	//
 	// Read possible hotspots, and verify matches
 	//
-	std::vector <HotspotCoordsWithProbability> possibleHotspots;
+	std::vector<HotspotCoordsWithProbability>* possibleHotspots;
+	possibleHotspots = new std::vector<HotspotCoordsWithProbability>();
 	int count = 0;
 	while (true) {
 		// check if end of files is reached, and verify end of all files
@@ -287,20 +296,20 @@ void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::stri
 			exit(EXIT_FAILURE);
 		}
 		
-		possibleHotspots.push_back(coord);
+		possibleHotspots->push_back(coord);
 		count++;
 	}
 	
-	if (count != (int)possibleHotspots.size()) {
+	if (count != (int)possibleHotspots->size()) {
 		printf("Error: Coordinate count, %d, does not match size of coordinate vector, %zu.\n\n",
-				count, possibleHotspots.size());
+				count, possibleHotspots->size());
 		exit(EXIT_FAILURE);
 	}
 	
 	//
 	// Normalize
 	//
-	PossibleHotspotsDistribution::Normalize(&possibleHotspots);
+	PossibleHotspotsDistribution::Normalize(possibleHotspots);
 	
 	//
 	// Write results to file
@@ -312,13 +321,13 @@ void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::stri
 		exit(EXIT_FAILURE);
 	}
 	
-	for(std::vector<HotspotCoordsWithProbability>::iterator it = possibleHotspots.begin(); it<possibleHotspots.end(); it++){
+	for(std::vector<HotspotCoordsWithProbability>::iterator it = possibleHotspots->begin(); it<possibleHotspots->end(); it++){
 		HotspotCoordsWithProbability coords = *it;
 		fprintf(file, "%s\n", coords.ToString().c_str());
 	}
 	
 	fclose(file);	
-	printf("Printed combined distribution with %zu hotspots to file: \"%s\".\n\n", possibleHotspots.size(), filename.c_str());
+	printf("Printed combined distribution with %zu hotspots to file: \"%s\".\n\n", possibleHotspots->size(), filename.c_str());
 	
 	//
 	// Close files
@@ -328,6 +337,8 @@ void CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::stri
 		fclose(partialFile->fileStream);
 		delete(partialFile);
 	}
+	
+	return possibleHotspots;
 }
 
 int GetFileBytes(std::string filename, char* &bytes) {
@@ -418,11 +429,49 @@ int main(int argc, char* argv[]) {
 		exit(EXIT_FAILURE);
 	}
 	
-	CombinePossibleHotspotFiles(partialDirs, params.resultsDir, params.possibleHotspotsFilename);
+	std::vector<HotspotCoordsWithProbability>* possibleHotspotsVec;
+	possibleHotspotsVec = CombinePossibleHotspotFiles(partialDirs, params.resultsDir, params.possibleHotspotsFilename);
+	PossibleHotspotsDistribution possibleHotspots(possibleHotspotsVec);
 	
 	VerifyAndCopyMatchingFiles(partialDirs, params.resultsDir, params.inputFilename);
 	VerifyAndCopyMatchingFiles(partialDirs, params.resultsDir, params.limitsFilename);
 	VerifyAndCopyMatchingFiles(partialDirs, params.resultsDir, params.abcdDistFilename);
+	
+	//
+	// Determine nonremovable hotspots and probability
+	//
+	ObservedHotspots observedHotspots(params.resultsDir + params.inputFilename);
+	AbcdSpaceLimits limits(observedHotspots, false);
+	
+	printf("\nFinding nonremovable possible hotspots:\n");
+	PossibleHotspotsDistribution nonremovableHotspots(limits, true);
+	nonremovableHotspots.PrintToFile(params.resultsDir + params.nonremovableHotspotsFile, false);
+	Double accumProb = possibleHotspots.GetTotalProbability(nonremovableHotspots);
+	
+	std::string filename = params.resultsDir + params.nonremovableProbFile;
+	FILE* file = fopen(filename.c_str(), "w");
+	if(!file) {
+		printf("Error: Could not open file for writing: \"%s\"\n", filename.c_str());
+		exit(EXIT_FAILURE);
+	}
+	
+	fprintf(file, "Probability of getting a nonremovable & non-removing point next month:\n");
+	fprintf(file, "%.36Lg%%\n", 100*accumProb);
+	fprintf(file, "Probability of getting a removable & removing point next month:\n");
+	fprintf(file, "%.36Lg%%\n", 100*(1-accumProb));
+	
+	fclose(file);
+	printf("\nPrinted nonremovable & removable probabilities to file: \"%s\".\n", filename.c_str());
+	
+	printf("\nProbability of getting a nonremovable & non-removing point next month:\n");
+	printf("%.36Lg%%\n", 100*accumProb);
+	printf("Probability of getting a removable & removing point next month:\n");
+	printf("%.36Lg%%\n", 100*(1-accumProb));
+	//
+	// End nonremovable hotspots and probability
+	//
+	
+	delete(possibleHotspotsVec);
 	
 	printf("\nResults reassembled successfully.\n");
 	

@@ -28,6 +28,7 @@ struct Params {
 	std::string abcdDistFile;
 	std::string possibleHotspotsFile;
 	std::string nonremovableHotspotsFile;
+	std::string nonremovableProbFile;
 };
 
 Params DefaultParams() {
@@ -53,7 +54,8 @@ Params DefaultParams() {
 	params.limitsFile = "limits.txt";
 	params.abcdDistFile = "abcdspaceprob.txt";
 	params.possibleHotspotsFile = "possiblehotspots.txt";
-	params.nonremovableHotspotsFile = "nonremovable-possiblehotspots.txt";
+	params.nonremovableHotspotsFile = "possiblehotspots-nonremovable.txt";
+	params.nonremovableProbFile = "nonremovable-prob.txt";
 	
 	return params;
 }
@@ -74,6 +76,7 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 		{"abcdDistFile",				required_argument, NULL, 133},
 		{"possibleHotspotsFile",		required_argument, NULL, 134},
 		{"nonremovableHotspotsFile",	required_argument, NULL, 135},
+		{"nonremovableProbFile",		required_argument, NULL, 136},
 		{0, 0, 0, 0}
 	};
 	
@@ -95,6 +98,7 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 			case 133: params.abcdDistFile = optarg; break;
 			case 134: params.possibleHotspotsFile = optarg; break;
 			case 135: params.nonremovableHotspotsFile = optarg; break;
+			case 136: params.nonremovableProbFile = optarg; break;
 			default: 
 				printf("Error: Could not parse arguments.\n");
 				exit(EXIT_FAILURE);
@@ -204,8 +208,27 @@ int main(int argc, char* argv[]) {
 		printf("\nFinding nonremovable possible hotspots:\n");
 		PossibleHotspotsDistribution nonremovableHotspots(limits, true);
 		nonremovableHotspots.PrintToFile(params.outputDir + params.nonremovableHotspotsFile, false);
-		Double accumProb = possibleHotspots.GetTotalProbability(possibleHotspots);
-		printf("\nProbability of getting a nonremovable point next month: %Lf%%\n", 100*accumProb);
+		Double accumProb = possibleHotspots.GetTotalProbability(nonremovableHotspots);
+		
+		std::string filename = params.outputDir + params.nonremovableProbFile;
+		FILE* file = fopen(filename.c_str(), "w");
+		if(!file) {
+			printf("Error: Could not open file for writing: \"%s\"\n", filename.c_str());
+			exit(EXIT_FAILURE);
+		}
+		
+		fprintf(file, "Probability of getting a nonremovable & non-removing point next month:\n");
+		fprintf(file, "%.36Lg%%\n", 100*accumProb);
+		fprintf(file, "Probability of getting a removable & removing point next month:\n");
+		fprintf(file, "%.36Lg%%\n", 100*(1-accumProb));
+		
+		fclose(file);
+		printf("\nPrinted nonremovable & removable probabilities to file: \"%s\".\n", filename.c_str());
+		
+		printf("\nProbability of getting a nonremovable & non-removing point next month:\n");
+		printf("%.36Lg%%\n", 100*accumProb);
+		printf("Probability of getting a removable & removing point next month:\n");
+		printf("%.36Lg%%\n", 100*(1-accumProb));
 	}
 	
 	return EXIT_SUCCESS;

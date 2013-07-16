@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include "AbcdSpaceLimits.h"
 
-AbcdSpaceLimits::AbcdSpaceLimits(ObservedHotspots observedHotspots) {
+AbcdSpaceLimits::AbcdSpaceLimits(ObservedHotspots observedHotspots, bool printOut) {
 	for (int i = 0 ; i < 4; i++) {
 		for (int j = 0; j < 4; j++) {
 			limits[i][j] = std::numeric_limits<Double>::infinity();
@@ -11,7 +11,7 @@ AbcdSpaceLimits::AbcdSpaceLimits(ObservedHotspots observedHotspots) {
 	
 	observedHotspots.Iterate(AdjustLimitsSingleHotspot, &limits);
 	
-	PairwiseCombineLimits();
+	PairwiseCombineLimits(printOut);
 }
 
 void AbcdSpaceLimits::PrintToFile(std::string filename){
@@ -103,7 +103,7 @@ void AbcdSpaceLimits::AdjustLimitsSingleHotspot(HotspotCoordsWithDate coord, voi
 	delete(numCoordsArray);
 }
 
-void AbcdSpaceLimits::PairwiseCombineLimits() {
+void AbcdSpaceLimits::PairwiseCombineLimits(bool printOut) {
 	bool changed;
 	int count=0;
 	do {
@@ -123,5 +123,6 @@ void AbcdSpaceLimits::PairwiseCombineLimits() {
 		}
 		count ++;
 	} while(changed);
-	printf("Required %d iterations for pairwise combininig limits\n", count);
+	if(printOut)
+		printf("Required %d iterations for pairwise combininig limits.\n", count);
 }

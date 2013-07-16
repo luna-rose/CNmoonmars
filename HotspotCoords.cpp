@@ -37,10 +37,6 @@ std::string HotspotCoords::ToString() {
 }
 
 bool HotspotCoords::Compare(HotspotCoords a, HotspotCoords b) {
-	HotspotCoords tmp = a;
-	a = b;
-	b = tmp;
-	
 	if(a.moonLat != b.moonLat)
 		return a.moonLat < b.moonLat;
 	if(a.moonLong != b.moonLong)

@@ -10,6 +10,7 @@
 
 class PossibleHotspotsDistribution {
 public:
+	PossibleHotspotsDistribution(std::vector<HotspotCoordsWithProbability>* points);
 	PossibleHotspotsDistribution(AbcdSpaceLimits limits, bool nonremovable);
 	PossibleHotspotsDistribution(AbcdSpaceLimits limits, AbcdSpaceProbabilityDistribution* abcdDistribution); 
 	PossibleHotspotsDistribution(ObservedHotspots observedHotspots, AbcdSpaceLimits limits, 
