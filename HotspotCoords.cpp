@@ -1,3 +1,4 @@
+#include <cstdio>
 #include "HotspotCoords.h"
 
 HotspotCoords::HotspotCoords() : 
