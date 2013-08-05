@@ -259,8 +259,7 @@ std::vector<HotspotCoordsWithProbability>* CombinePossibleHotspotFiles(std::vect
 			}
 			
 			if (readCoords) {
-				if (coord.moonLat != newCoord.moonLat || coord.moonLong != newCoord.moonLong ||
-					coord.marsLat != newCoord.marsLat || coord.marsLong != newCoord.marsLong) {
+				if (coord != newCoord) {
 					printf("Error: Coordinate mismatch in coordinate %d while reading file \"%s\":\n",
 							count+1, partialFile->filename.c_str());
 					printf("Old: %s.\n", coord.ToString().c_str());
