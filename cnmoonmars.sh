@@ -7,19 +7,22 @@ CMDSTR="$@"
 
 while true; do
 	case "$1" in
-		-startIndex)			STARTINDEX="$2"; shift 2 ;;
-		-endIndex)				ENDINDEX="$2"; shift 2 ;;
-		-gridRes)				GRIDRES="$2"; shift 2 ;;
-		-increment)				INCREMENT="$2"; shift 2 ;;
-		-interval)				INTERVAL="$2"; shift 2 ;;
-		-dataDir)				DATADIR="$2"; shift 2 ;;
-		-statusDir)				STATUSDIR="$2"; shift 2 ;;
-		-outputDir)				OUTPUTDIR="$2"; shift 2 ;;
-		-inputFile)				INPUTFILE="$2"; shift 2 ;;
-		-limitsFile)			LIMITSFILE="$2"; shift 2 ;;
-		-abcdDistFile)			ABCDDISTFILE="$2"; shift 2 ;;
-		-possibleHotspotsFile)	POSSIBLEHOTSPOTSFILE="$2"; shift 2 ;;
-		*)						shift; if [ $# == 0 ]; then break; fi
+		-startIndex)				STARTINDEX="$2"; shift 2 ;;
+		-endIndex)					ENDINDEX="$2"; shift 2 ;;
+		-gridRes)					GRIDRES="$2"; shift 2 ;;
+		-increment)					INCREMENT="$2"; shift 2 ;;
+		-interval)					INTERVAL="$2"; shift 2 ;;
+		-dataDir)					DATADIR="$2"; shift 2 ;;
+		-statusDir)					STATUSDIR="$2"; shift 2 ;;
+		-outputDir)					OUTPUTDIR="$2"; shift 2 ;;
+		-inputFile)					INPUTFILE="$2"; shift 2 ;;
+		-mFile)						MFILE="$2"; shift 2 ;;
+		-limitsFile)				LIMITSFILE="$2"; shift 2 ;;
+		-abcdDistFile)				ABCDDISTFILE="$2"; shift 2 ;;
+		-possibleHotspotsFile)		POSSIBLEHOTSPOTSFILE="$2"; shift 2 ;;
+		-nonremovableHotspotsFile)	NONREMOVABLEHOTSPOTSFILE="$2"; shift 2 ;;
+		-nonremovableProbFile)		NONREMOVABLEPROBFILE="$2"; shift 2 ;;
+		*)							shift; if [ $# == 0 ]; then break; fi
 	esac
 done
 

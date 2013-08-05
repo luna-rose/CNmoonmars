@@ -20,15 +20,17 @@ struct Params {
 	int endIndex;
 	
 	std::string dataDir;
-	std::string statusDir;
-	std::string outputDir;
-	
 	std::string inputFile;
+	std::string mFile;
+	
+	std::string outputDir;
 	std::string limitsFile;
 	std::string abcdDistFile;
 	std::string possibleHotspotsFile;
 	std::string nonremovableHotspotsFile;
 	std::string nonremovableProbFile;
+	
+	std::string statusDir;
 };
 
 Params DefaultParams() {
@@ -47,15 +49,17 @@ Params DefaultParams() {
 	params.endIndex = 0;
 	
 	params.dataDir = "data/";
-	params.outputDir = "output/";
-	params.statusDir = "status/";
-	
 	params.inputFile = "input-observedhotspots.txt";
+	params.mFile = "M.txt";
+	
+	params.outputDir = "output/";
 	params.limitsFile = "limits.txt";
 	params.abcdDistFile = "abcdspaceprob.txt";
 	params.possibleHotspotsFile = "possiblehotspots.txt";
 	params.nonremovableHotspotsFile = "possiblehotspots-nonremovable.txt";
 	params.nonremovableProbFile = "nonremovable-prob.txt";
+	
+	params.statusDir = "status/";
 	
 	return params;
 }
@@ -77,6 +81,7 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 		{"possibleHotspotsFile",		required_argument, NULL, 134},
 		{"nonremovableHotspotsFile",	required_argument, NULL, 135},
 		{"nonremovableProbFile",		required_argument, NULL, 136},
+		{"mFile",						required_argument, NULL, 137},
 		{0, 0, 0, 0}
 	};
 	
@@ -99,6 +104,7 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 			case 134: params.possibleHotspotsFile = optarg; break;
 			case 135: params.nonremovableHotspotsFile = optarg; break;
 			case 136: params.nonremovableProbFile = optarg; break;
+			case 137: params.mFile = optarg; break;
 			default: 
 				printf("Error: Could not parse arguments.\n");
 				exit(EXIT_FAILURE);

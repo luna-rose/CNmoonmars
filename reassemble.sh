@@ -8,10 +8,13 @@ CMDSTR="$@"
 while true; do
 	case "$1" in
 		-resultsDir)				RESULTSDIR="$2"; shift 2 ;;
-		-inputFilename)				INPUTFILENAME="$2"; shift 2 ;;
-		-limitsFilename)			LIMITSFILENAME="$2"; shift 2 ;;
-		-abcdDistFilename)			ABCDDISTFILENAME="$2"; shift 2 ;;
-		-possibleHotspotsFilename)	POSSIBLEHOTSPOTSFILENAME="$2"; shift 2 ;;
+		-inputFile)					INPUTFILE="$2"; shift 2 ;;
+		-limitsFile)				LIMITSFILE="$2"; shift 2 ;;
+		-mFile)						MFILE="$2"; shift 2 ;;
+		-abcdDistFile)				ABCDDISTFILE="$2"; shift 2 ;;
+		-possibleHotspotsFile)		POSSIBLEHOTSPOTSFILE="$2"; shift 2 ;;
+		-nonremovableHotspotsFile)	NONREMOVABLEHOTSPOTSFILE="$2"; shift 2 ;;
+		-nonremovableProbFile)		NONREMOVABLEPROBFILE="$2"; shift 2 ;;
 		*)						shift; if [ $# == 0 ]; then break; fi
 	esac
 done

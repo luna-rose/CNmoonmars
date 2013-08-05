@@ -23,10 +23,11 @@ struct PartialFile {
 struct Params {
 	std::string resultsDir;
 	
-	std::string inputFilename;
-	std::string limitsFilename;
-	std::string abcdDistFilename;
-	std::string possibleHotspotsFilename;
+	std::string inputFile;
+	std::string limitsFile;
+	std::string mFile;
+	std::string abcdDistFile;
+	std::string possibleHotspotsFile;
 	std::string nonremovableHotspotsFile;
 	std::string nonremovableProbFile;
 };
@@ -36,10 +37,11 @@ Params DefaultParams() {
 	
 	params.resultsDir = "output/";
 	
-	params.inputFilename = "input-observedhotspots.txt";
-	params.limitsFilename = "limits.txt";
-	params.abcdDistFilename = "abcdspaceprob.txt";
-	params.possibleHotspotsFilename = "possiblehotspots.txt";
+	params.inputFile = "input-observedhotspots.txt";
+	params.limitsFile = "limits.txt";
+	params.mFile = "M.txt";
+	params.abcdDistFile = "abcdspaceprob.txt";
+	params.possibleHotspotsFile = "possiblehotspots.txt";
 	params.nonremovableHotspotsFile = "possiblehotspots-nonremovable.txt";
 	params.nonremovableProbFile = "nonremovable-prob.txt";
 	
@@ -49,13 +51,14 @@ Params DefaultParams() {
 void ParseArguments(int argc, char* argv[], Params &params) {
 	static struct option long_options[] =
 	{
-		{"resultsDir",					required_argument, NULL, 130},
-		{"inputFilename",				required_argument, NULL, 131},
-		{"limitsFilename",				required_argument, NULL, 132},
-		{"abcdDistFilename",			required_argument, NULL, 133},
-		{"possibleHotspotsFilename",	required_argument, NULL, 134},
+		{"resultsDir",						required_argument, NULL, 130},
+		{"inputFile",					required_argument, NULL, 131},
+		{"limitsFile",					required_argument, NULL, 132},
+		{"abcdDistFile",				required_argument, NULL, 133},
+		{"possibleHotspotsFile",		required_argument, NULL, 134},
 		{"nonremovableHotspotsFile",	required_argument, NULL, 135},
 		{"nonremovableProbFile",		required_argument, NULL, 136},
+		{"mFile",						required_argument, NULL, 137},
 		{0, 0, 0, 0}
 	};
 	
@@ -65,12 +68,13 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 		switch (c)
 		{
 			case 130: params.resultsDir = optarg; break;
-			case 131: params.inputFilename = optarg; break;
-			case 132: params.inputFilename = optarg; break;
-			case 133: params.abcdDistFilename = optarg; break;
-			case 134: params.possibleHotspotsFilename = optarg; break;
+			case 131: params.inputFile = optarg; break;
+			case 132: params.inputFile = optarg; break;
+			case 133: params.abcdDistFile = optarg; break;
+			case 134: params.possibleHotspotsFile = optarg; break;
 			case 135: params.nonremovableHotspotsFile = optarg; break;
 			case 136: params.nonremovableProbFile = optarg; break;
+			case 137: params.mFile= optarg; break;
 			default: 
 				printf("Error: Could not parse arguments.\n");
 				exit(EXIT_FAILURE);
@@ -430,17 +434,17 @@ int main(int argc, char* argv[]) {
 	}
 	
 	std::vector<HotspotCoordsWithProbability>* possibleHotspotsVec;
-	possibleHotspotsVec = CombinePossibleHotspotFiles(partialDirs, params.resultsDir, params.possibleHotspotsFilename);
+	possibleHotspotsVec = CombinePossibleHotspotFiles(partialDirs, params.resultsDir, params.possibleHotspotsFile);
 	PossibleHotspotsDistribution possibleHotspots(possibleHotspotsVec);
 	
-	VerifyAndCopyMatchingFiles(partialDirs, params.resultsDir, params.inputFilename);
-	VerifyAndCopyMatchingFiles(partialDirs, params.resultsDir, params.limitsFilename);
-	VerifyAndCopyMatchingFiles(partialDirs, params.resultsDir, params.abcdDistFilename);
+	VerifyAndCopyMatchingFiles(partialDirs, params.resultsDir, params.inputFile);
+	VerifyAndCopyMatchingFiles(partialDirs, params.resultsDir, params.limitsFile);
+	VerifyAndCopyMatchingFiles(partialDirs, params.resultsDir, params.abcdDistFile);
 	
 	//
 	// Determine nonremovable hotspots and probability
 	//
-	ObservedHotspots observedHotspots(params.resultsDir + params.inputFilename);
+	ObservedHotspots observedHotspots(params.resultsDir + params.inputFile);
 	AbcdSpaceLimits limits(observedHotspots, false);
 	
 	printf("\nFinding nonremovable possible hotspots:\n");
