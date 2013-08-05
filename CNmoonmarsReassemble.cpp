@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cstring>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <getopt.h>
@@ -114,7 +115,8 @@ std::vector<std::string> GetPartialSubdirectories(std::string dirName) {
 	return result;
 }
 
-std::vector<HotspotCoordsWithProbability>* CombinePossibleHotspotFiles(std::vector<std::string> partialDirs, std::string resultsDir, std::string possibleHotspotsFilename) {
+std::vector<HotspotCoordsWithProbability>* CombinePossibleHotspotFiles(std::vector<std::string> partialDirs,
+											std::string resultsDir, std::string possibleHotspotsFilename, RegenerateMatrix* regenMat) {
 	std::vector<PartialFile*> partialFiles;
 	
 	//
@@ -310,6 +312,13 @@ std::vector<HotspotCoordsWithProbability>* CombinePossibleHotspotFiles(std::vect
 	}
 	
 	//
+	// Regenerate coordinates
+	//
+	if (regenMat) {
+		regenMat->RegenerateProbabilities(*possibleHotspots);
+	}
+	
+	//
 	// Normalize
 	//
 	PossibleHotspotsDistribution::Normalize(possibleHotspots);
@@ -419,6 +428,25 @@ void VerifyAndCopyMatchingFiles(std::vector<std::string> directories, std::strin
 	free(bytes);
 }
 
+bool AllFilesExist(std::vector<std::string> directories, std::string filename) {
+	std::string firstFullFileName = *(directories.begin())+filename;
+	std::ifstream firstStream(firstFullFileName.c_str());
+	bool filesExist = firstStream;
+	
+	for (std::vector<std::string>::iterator dir=directories.begin(); dir<directories.end(); dir++) {
+		std::string fullFileName = *dir+filename;
+		std::ifstream stream(fullFileName.c_str());
+		if(filesExist != (bool)stream)  {
+			printf("Error: File %s %s, but file %s %s.\n",
+				   firstFullFileName.c_str(), filesExist ? "exists":"does not exist",
+				   fullFileName.c_str(), stream ? "exists":"does not exist");
+			exit(EXIT_FAILURE);
+		}
+	}
+	
+	return filesExist;
+}
+
 int main(int argc, char* argv[]) {
 	Params params = DefaultParams();	
 	ParseArguments(argc, argv, params);
@@ -432,21 +460,31 @@ int main(int argc, char* argv[]) {
 		exit(EXIT_FAILURE);
 	}
 	
-	std::vector<HotspotCoordsWithProbability>* possibleHotspotsVec;
-	possibleHotspotsVec = CombinePossibleHotspotFiles(partialDirs, params.resultsDir, params.possibleHotspotsFile);
-	PossibleHotspotsDistribution possibleHotspots(possibleHotspotsVec);
-	
 	VerifyAndCopyMatchingFiles(partialDirs, params.resultsDir, params.inputFile);
 	VerifyAndCopyMatchingFiles(partialDirs, params.resultsDir, params.limitsFile);
 	VerifyAndCopyMatchingFiles(partialDirs, params.resultsDir, params.abcdDistFile);
 	
+	RegenerateMatrix* regenMat = NULL;
+	if(AllFilesExist(partialDirs, params.mFile))
+	{
+		VerifyAndCopyMatchingFiles(partialDirs, params.resultsDir, params.mFile);
+		printf("\n");
+		regenMat = new RegenerateMatrix(params.resultsDir + params.mFile);
+		printf("\n");
+	}
+	printf("------------------------------------------------------------------------------------------\n");
+	
+	std::vector<HotspotCoordsWithProbability>* possibleHotspotsVec;
+	possibleHotspotsVec = CombinePossibleHotspotFiles(partialDirs, params.resultsDir, params.possibleHotspotsFile, regenMat);
+	
 	//
 	// Determine nonremovable hotspots and probability
 	//
+	PossibleHotspotsDistribution possibleHotspots(possibleHotspotsVec);
 	ObservedHotspots observedHotspots(params.resultsDir + params.inputFile);
 	AbcdSpaceLimits limits(observedHotspots, false);
 	
-	printf("\nFinding nonremovable possible hotspots:\n");
+	printf("Finding nonremovable possible hotspots:\n");
 	PossibleHotspotsDistribution nonremovableHotspots(limits, true);
 	nonremovableHotspots.PrintToFile(params.resultsDir + params.nonremovableHotspotsFile, false);
 	Double accumProb = possibleHotspots.GetTotalProbability(nonremovableHotspots);
