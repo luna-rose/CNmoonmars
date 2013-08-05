@@ -26,17 +26,7 @@ endIndex(0)
 	CalculatePossibleHotspotCoords(limits, nonremovable);
 }
 
-PossibleHotspotsDistribution::PossibleHotspotsDistribution(AbcdSpaceLimits limits, AbcdSpaceProbabilityDistribution* abcdDistribution) :
-	startIndex(0),
-	endIndex(0)
-{
-	ValidateIndexLimits(startIndex, endIndex);
-	CalculatePossibleHotspotCoords(limits);
-	AccumulateProbabilities(abcdDistribution);
-	printf("Probability distribution contains %ld points.\n", abcdDistribution->GetNumPoints());
-}
-
-PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots observedHotspots, AbcdSpaceLimits limits,
+PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots observedHotspots, AbcdSpaceLimits limits, RegenerateMatrix* regenMat,
 							int inGridRes, int inIncrement, int inInterval, std::string directory, int inStartIndex, int inEndIndex) :
 	startIndex(inStartIndex),
 	endIndex(inEndIndex),
@@ -71,7 +61,7 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots obse
 		
 		AbcdSpaceProbabilityDistribution* abcdDistribution;
 		abcdDistribution = new AbcdSpaceProbabilityDistribution(observedHotspots, partialSpaceLimits, gridRes, increment, false);
-		AccumulateProbabilities(abcdDistribution);	
+		AccumulateProbabilities(abcdDistribution, regenMat);
 		
 		pointCount += abcdDistribution->GetNumPoints();
 		chunkCount ++;
@@ -105,6 +95,9 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots obse
 	}
 	
 	if (!IsPartial()) {
+		if (regenMat != NULL) {
+			regenMat->RegenerateProbabilities(possibleHotspots);
+		}
 		Normalize();
 	}
 }
@@ -201,7 +194,7 @@ void PossibleHotspotsDistribution::CalculatePossibleHotspotCoords(AbcdSpaceLimit
 	AdjustStartEndIndices();
 }
 
-void PossibleHotspotsDistribution::AccumulateProbabilities(AbcdSpaceProbabilityDistribution* abcdDistribution) {
+void PossibleHotspotsDistribution::AccumulateProbabilities(AbcdSpaceProbabilityDistribution* abcdDistribution, RegenerateMatrix* regenMat) {
 	int start = 0;
 	int end = possibleHotspots.size() - 1;
 	
@@ -214,7 +207,8 @@ void PossibleHotspotsDistribution::AccumulateProbabilities(AbcdSpaceProbabilityD
 	#pragma omp parallel for
 	#endif
 	for (int i=start; i<=end; i++) {
-		possibleHotspots[i].prob = abcdDistribution->CalculateHotspotProbability(possibleHotspots[i], possibleHotspots[i].prob);
+		if(regenMat == NULL || regenMat->IsRequired(i))
+			possibleHotspots[i].prob = abcdDistribution->CalculateHotspotProbability(possibleHotspots[i], possibleHotspots[i].prob);
 	}
 }
 

@@ -6,6 +6,7 @@
 #include "Common.h"
 #include "AbcdSpaceLimits.h"
 #include "AbcdSpaceProbabilityDistribution.h"
+#include "RegenerateMatrix.h"
 #include "PossibleHotspotsDistribution.h"
 #ifdef using_parallel
 	#include <omp.h>
@@ -205,8 +206,23 @@ int main(int argc, char* argv[]) {
 	AbcdSpaceProbabilityDistribution abcdDist(observedHotspots, limits, 1, 5);
 	abcdDist.PrintToFile(params.outputDir + params.abcdDistFile);
 	printf("\n");
-
-	PossibleHotspotsDistribution possibleHotspots(observedHotspots, limits, params.gridRes, params.increment, params.interval, 
+	
+	RegenerateMatrix* regenMat = NULL;
+	
+	std::string inMfile = params.dataDir + params.mFile;
+	std::ifstream srcM(inMfile.c_str());
+	if(srcM)
+	{
+		std::string outMfile = params.outputDir + params.mFile;
+		std::ofstream dstM(outMfile.c_str());
+		dstM << srcM.rdbuf();
+		printf("Copied M file to \"%s\".\n", outMfile.c_str());
+		
+		regenMat = new RegenerateMatrix(inMfile);
+		printf("\n");
+	}
+	
+	PossibleHotspotsDistribution possibleHotspots(observedHotspots, limits, regenMat, params.gridRes, params.increment, params.interval,
 												  params.outputDir + params.statusDir, params.startIndex, params.endIndex);
 	possibleHotspots.PrintToFile(params.outputDir + params.possibleHotspotsFile);
 	

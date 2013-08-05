@@ -46,3 +46,11 @@ bool HotspotCoords::Compare(HotspotCoords a, HotspotCoords b) {
 		return a.marsLat < b.marsLat;
 	return a.marsLong < b.marsLong;
 }
+
+bool HotspotCoords::operator==(HotspotCoords other) {
+	return !Compare(*this, other) && !Compare(other, *this);
+}
+
+bool HotspotCoords::operator!=(HotspotCoords other) {
+	return !(*this == other);
+}

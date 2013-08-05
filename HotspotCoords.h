@@ -17,6 +17,8 @@ public:
 	static const short* GetNumCoordsArray();
 	
 	static bool Compare(HotspotCoords a, HotspotCoords b);
+	bool operator==(HotspotCoords other);
+	bool operator!=(HotspotCoords other);
 	
 	static const Coord MissingCoord = SHRT_MAX;
 	

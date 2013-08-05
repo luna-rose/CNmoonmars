@@ -42,8 +42,8 @@ AbcdSpaceProbabilityDistribution.o: ObservedHotspots.h AbcdSpaceLimits.h
 AbcdSpaceProbabilityDistribution.o: AbcdSpaceLimitsInt.h
 CNmoonmars.o: ObservedHotspots.h HotspotCoordsWithDate.h HotspotCoords.h
 CNmoonmars.o: Month.h Common.h AbcdSpaceLimits.h AbcdSpaceLimitsInt.h
-CNmoonmars.o: AbcdSpaceProbabilityDistribution.h
-CNmoonmars.o: PossibleHotspotsDistribution.h HotspotCoordsWithProbability.h
+CNmoonmars.o: AbcdSpaceProbabilityDistribution.h RegenerateMatrix.h
+CNmoonmars.o: HotspotCoordsWithProbability.h PossibleHotspotsDistribution.h
 CNmoonmarsCountPoints.o: Common.h HotspotCoordsWithDate.h HotspotCoords.h
 CNmoonmarsCountPoints.o: Month.h ObservedHotspots.h AbcdSpaceLimits.h
 CNmoonmarsCountPoints.o: AbcdSpaceLimitsInt.h
@@ -52,7 +52,7 @@ CNmoonmarsReassemble.o: Common.h HotspotCoordsWithDate.h HotspotCoords.h
 CNmoonmarsReassemble.o: Month.h HotspotCoordsWithProbability.h
 CNmoonmarsReassemble.o: PossibleHotspotsDistribution.h AbcdSpaceLimits.h
 CNmoonmarsReassemble.o: ObservedHotspots.h AbcdSpaceLimitsInt.h
-CNmoonmarsReassemble.o: AbcdSpaceProbabilityDistribution.h
+CNmoonmarsReassemble.o: AbcdSpaceProbabilityDistribution.h RegenerateMatrix.h
 Common.o: Common.h HotspotCoordsWithDate.h HotspotCoords.h Month.h
 HotspotCoords.o: HotspotCoords.h
 HotspotCoordsWithDate.o: HotspotCoordsWithDate.h HotspotCoords.h Month.h
@@ -69,3 +69,7 @@ PossibleHotspotsDistribution.o: Month.h ObservedHotspots.h
 PossibleHotspotsDistribution.o: AbcdSpaceLimitsInt.h
 PossibleHotspotsDistribution.o: AbcdSpaceProbabilityDistribution.h
 PossibleHotspotsDistribution.o: HotspotCoordsWithProbability.h
+PossibleHotspotsDistribution.o: RegenerateMatrix.h
+RegenerateMatrix.o: RegenerateMatrix.h HotspotCoords.h
+RegenerateMatrix.o: HotspotCoordsWithProbability.h Common.h
+RegenerateMatrix.o: HotspotCoordsWithDate.h Month.h

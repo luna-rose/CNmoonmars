@@ -7,13 +7,13 @@
 #include "AbcdSpaceLimits.h"
 #include "AbcdSpaceProbabilityDistribution.h"
 #include "HotspotCoordsWithProbability.h"
+#include "RegenerateMatrix.h"
 
 class PossibleHotspotsDistribution {
 public:
 	PossibleHotspotsDistribution(std::vector<HotspotCoordsWithProbability>* points);
 	PossibleHotspotsDistribution(AbcdSpaceLimits limits, bool nonremovable);
-	PossibleHotspotsDistribution(AbcdSpaceLimits limits, AbcdSpaceProbabilityDistribution* abcdDistribution); 
-	PossibleHotspotsDistribution(ObservedHotspots observedHotspots, AbcdSpaceLimits limits, 
+	PossibleHotspotsDistribution(ObservedHotspots observedHotspots, AbcdSpaceLimits limits, RegenerateMatrix* regenMat,
 								 int gridRes, int increment, int interval, std::string directory="/dev/null", int startIndex=0, int endIndex=0);
 	
 	void PrintToFile(std::string filename, bool printProbs = true);
@@ -28,7 +28,7 @@ private:
 	PossibleHotspotsDistribution(int startIndex, int endIndex); 
 
 	void CalculatePossibleHotspotCoords(AbcdSpaceLimits limits, bool nonremovable = false);
-	void AccumulateProbabilities(AbcdSpaceProbabilityDistribution* abcdDistribution);
+	void AccumulateProbabilities(AbcdSpaceProbabilityDistribution* abcdDistribution, RegenerateMatrix* regenMat);
 	void Normalize();
 	
 	void PrintStatusFile(char* buff, char* filename);
