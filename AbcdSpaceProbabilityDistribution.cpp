@@ -113,12 +113,13 @@ void AbcdSpaceProbabilityDistribution::CalculateProbabilityDistribution(Observed
 	probPoints = new AbcdSpacePoint[numProbPoints];
 	
 	long int totalCount = 0;
-	#ifdef using_parallel
-	#pragma omp parallel for
-	#endif
+	int parallelUnitCount = 0;
 	for (int ba = LimitCount - limsInt.limits[0][1] + increment; ba < limsInt.limits[1][0]; ba += increment) {
-		long int count = 0;
+		#ifdef using_parallel
+		#pragma omp parallel for
+		#endif
 		for (int ca = LimitCount - limsInt.limits[0][2] + increment; ca < limsInt.limits[2][0]; ca += increment) {
+			long int count = 0;
 			for (int da = LimitCount - limsInt.limits[0][3] + increment; da < limsInt.limits[3][0]; da += increment) {
 				if (ca-ba > LimitCount - limsInt.limits[1][2] && ca-ba < limsInt.limits[2][1] && 
 					da-ba > LimitCount - limsInt.limits[1][3] && da-ba < limsInt.limits[3][1] &&
@@ -130,16 +131,20 @@ void AbcdSpaceProbabilityDistribution::CalculateProbabilityDistribution(Observed
 					data.LimitCount = LimitCount;
 					observedHotspots.Iterate(CalculateProbSingleHotspot, &data);
 					
-					int baIndex = (ba - (LimitCount - limsInt.limits[0][1] + increment))/increment;
-					probPoints[count + starts[baIndex]] = point;
+					int caIndex = (ca - (LimitCount - limsInt.limits[0][2] + increment))/increment;
+					probPoints[count + starts[parallelUnitCount+caIndex]] = point;
 					count++;
 				}
 			}
+			#ifdef using_parallel
+			#pragma omp critical
+			#endif
+			totalCount += count;
 		}
-		#ifdef using_parallel
-		#pragma omp critical
-		#endif
-		totalCount += count;
+		
+		int minCa = LimitCount - limsInt.limits[0][2];
+		int maxCa = limsInt.limits[2][0];
+		parallelUnitCount += (maxCa-minCa-1)/increment;
 	}
 	
 	if(normalize) {
@@ -166,9 +171,9 @@ long int AbcdSpaceProbabilityDistribution::CalculateNumberOfAbcdPoints(AbcdSpace
 	
 	long int count = 0;
 	for (int ba = LimitCount - limsInt.limits[0][1] + increment; ba < limsInt.limits[1][0]; ba += increment) {
-		if (starts!=NULL)
-			starts->push_back(count);
 		for (int ca = LimitCount - limsInt.limits[0][2] + increment; ca < limsInt.limits[2][0]; ca += increment) {
+			if (starts!=NULL)
+				starts->push_back(count);
 			if (ca-ba > LimitCount - limsInt.limits[1][2] && ca-ba < limsInt.limits[2][1]){
 				int minDa = LimitCount - limsInt.limits[0][3]; 
 				int maxDa = limsInt.limits[3][0];

@@ -40,11 +40,7 @@ Params DefaultParams() {
 	params.gridRes = 5;
 	params.increment = 1;
 	
-#ifdef using_parallel
-	params.interval = omp_get_max_threads();
-#else
 	params.interval = 1;
-#endif
 	
 	params.startIndex = 0;
 	params.endIndex = 0;
