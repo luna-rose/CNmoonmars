@@ -112,53 +112,52 @@ void AbcdSpaceProbabilityDistribution::CalculateProbabilityDistribution(Observed
 
 	probPoints = new AbcdSpacePoint[numProbPoints];
 	
-	long int totalCount = 0;
-	int parallelUnitCount = 0;
+	long int count = 0;
 	for (int ba = LimitCount - limsInt.limits[0][1] + increment; ba < limsInt.limits[1][0]; ba += increment) {
-		#ifdef using_parallel
-		#pragma omp parallel for
-		#endif
 		for (int ca = LimitCount - limsInt.limits[0][2] + increment; ca < limsInt.limits[2][0]; ca += increment) {
-			long int count = 0;
 			for (int da = LimitCount - limsInt.limits[0][3] + increment; da < limsInt.limits[3][0]; da += increment) {
 				if (ca-ba > LimitCount - limsInt.limits[1][2] && ca-ba < limsInt.limits[2][1] && 
 					da-ba > LimitCount - limsInt.limits[1][3] && da-ba < limsInt.limits[3][1] &&
 					da-ca > LimitCount - limsInt.limits[2][3] && da-ca < limsInt.limits[3][2]) {
 					
 					AbcdSpacePoint point(ba, ca, da, 1.0);
-					AbcdSpacePointWithLimitCount data;
-					data.point = &point;
-					data.LimitCount = LimitCount;
-					observedHotspots.Iterate(CalculateProbSingleHotspot, &data);
-					
-					int caIndex = (ca - (LimitCount - limsInt.limits[0][2] + increment))/increment;
-					probPoints[count + starts[parallelUnitCount+caIndex]] = point;
+					probPoints[count] = point;
 					count++;
 				}
 			}
-			#ifdef using_parallel
-			#pragma omp critical
-			#endif
-			totalCount += count;
 		}
-		
-		int minCa = LimitCount - limsInt.limits[0][2];
-		int maxCa = limsInt.limits[2][0];
-		parallelUnitCount += (maxCa-minCa-1)/increment;
 	}
+	
+	this->ComputeProbabilities(observedHotspots);
 	
 	if(normalize) {
-		Double sumProb = 0;
-		for(long int i=0; i<numProbPoints; i++)
-			sumProb += probPoints[i].prob;
-		for(long int i=0; i<numProbPoints; i++)
-			probPoints[i].prob /= sumProb;
+		Normalize();
 	}
 	
-	if(numProbPoints != totalCount) {
-		printf("Error: Anticipated %ld points, actually found %ld.\n", numProbPoints, totalCount);
+	if(numProbPoints != count) {
+		printf("Error: Anticipated %ld points, actually found %ld.\n", numProbPoints, count);
 		exit(EXIT_FAILURE);
 	}
+}
+
+void AbcdSpaceProbabilityDistribution::ComputeProbabilities(ObservedHotspots observedHotspots) {
+	#ifdef using_parallel
+	#pragma omp parallel for
+	#endif
+	for (long int i=0; i<numProbPoints; i++) {
+		AbcdSpacePointWithLimitCount data;
+		data.point = &probPoints[i];
+		data.LimitCount = LimitCount;
+		observedHotspots.Iterate(CalculateProbSingleHotspot, &data);
+	}
+}
+
+void AbcdSpaceProbabilityDistribution::Normalize() {
+	Double sumProb = 0;
+	for(long int i=0; i<numProbPoints; i++)
+		sumProb += probPoints[i].prob;
+	for(long int i=0; i<numProbPoints; i++)
+		probPoints[i].prob /= sumProb;
 }
 
 long int AbcdSpaceProbabilityDistribution::CalculateNumberOfAbcdPoints(AbcdSpaceLimits limits, int gridRes, int increment) {

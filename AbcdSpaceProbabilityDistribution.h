@@ -44,6 +44,9 @@ private:
 		int LimitCount;
 	};
 	
+	void Normalize();
+	void ComputeProbabilities(ObservedHotspots observedHotspots);
+	
 	void CalculateProbabilityDistribution(ObservedHotspots observedHotspots, AbcdSpaceLimits limits, int gridRes, int increment, bool normalize = true);
 	void CalculateProbabilityDistribution(ObservedHotspots observedHotspots, AbcdSpaceLimitsInt limits, int gridRes, int increment, bool normalize = true);
 	void static CalculateProbSingleHotspot(HotspotCoordsWithDate coord, void* data);
