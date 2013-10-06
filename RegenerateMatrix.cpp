@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstdlib>
 #include "RegenerateMatrix.h"
 
 RegenerateMatrix::RegenerateMatrix(std::string filename)
