@@ -16,7 +16,9 @@ struct Params {
 	int gridRes;
 	int increment;
 	int interval;
+	
 	bool deduplicateObserved;
+	bool outputStatus;
 	
 	int startIndex;
 	int endIndex;
@@ -44,6 +46,7 @@ Params DefaultParams() {
 	params.interval = 1;
 	
 	params.deduplicateObserved = true;
+	params.outputStatus = false;
 	
 	params.startIndex = 0;
 	params.endIndex = 0;
@@ -62,6 +65,24 @@ Params DefaultParams() {
 	params.statusDir = "status/";
 	
 	return params;
+}
+
+bool ReadBooleanArgument(char* argument, std::string argName){
+	std::string argVal = argument;
+	for(unsigned int i=0; i < argVal.size(); i++) {
+		argVal[i]=tolower(argVal[i]);
+	}
+	
+	if(argVal == "false" || argVal == "f" || argVal == "0") {
+		return false;
+	}
+	
+	if(argVal == "true" || argVal == "t" || argVal == "1") {
+		return true;
+	}
+	
+	printf("Error: Invalid value for argument %s: \"%s\".\n", argName.c_str(), argument);
+	exit(EXIT_FAILURE);
 }
 
 void ParseArguments(int argc, char* argv[], Params &params) {
@@ -83,6 +104,7 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 		{"nonremovableProbFile",		required_argument, NULL, 136},
 		{"mFile",						required_argument, NULL, 137},
 		{"deduplicateObserved",			required_argument, NULL, 138},
+		{"outputStatus",				required_argument, NULL, 139},
 		{0, 0, 0, 0}
 	};
 	
@@ -106,24 +128,8 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 			case 135: params.nonremovableHotspotsFile = optarg; break;
 			case 136: params.nonremovableProbFile = optarg; break;
 			case 137: params.mFile = optarg; break;
-			case 138:
-				{
-					std::string argVal = optarg;
-					for(unsigned int i=0; i < argVal.size(); i++) {
-						argVal[i]=tolower(argVal[i]);
-					}
-					if(argVal == "false" || argVal == "f" || argVal == "0") {
-						params.deduplicateObserved = false;
-					}
-					else if(argVal == "true" || argVal == "t" || argVal == "1") {
-						params.deduplicateObserved = true;
-					}
-					else {
-						printf("Error: Invalid value for argument deduplicateObserved: \"%s\".\n", optarg);
-						exit(EXIT_FAILURE);
-					}
-				}
-				break;
+			case 138: params.deduplicateObserved = ReadBooleanArgument(optarg, "deduplicateObserved"); break;
+			case 139: params.outputStatus = ReadBooleanArgument(optarg, "outputStatus"); break;
 			default: 
 				printf("Error: Could not parse arguments.\n");
 				exit(EXIT_FAILURE);
@@ -207,7 +213,10 @@ int main(int argc, char* argv[]) {
 	if(isPartial)
 		AddPartialSubdirToPath(params.outputDir, params.startIndex, params.endIndex);
 	
-	MakeDirectoryRecursive(params.outputDir + params.statusDir);
+	if(params.outputStatus)
+		MakeDirectoryRecursive(params.outputDir + params.statusDir);
+	else
+		MakeDirectoryRecursive(params.outputDir);
 	
 	if(isPartial) {
 		printf("GENERATING PARTIAL FILE\n");
@@ -243,9 +252,14 @@ int main(int argc, char* argv[]) {
 		printf("\n");
 	}
 	
+	std::string statusFullDir;
+	if(params.outputStatus)
+		statusFullDir = params.outputDir + params.statusDir;
+	else
+		statusFullDir = "/dev/null";
+	
 	PossibleHotspotsDistribution possibleHotspots(observedHotspots, limits, regenMat, params.gridRes, params.increment, params.interval,
-												  params.deduplicateObserved, params.outputDir + params.statusDir,
-												  params.startIndex, params.endIndex);
+												  params.deduplicateObserved, statusFullDir, params.startIndex, params.endIndex);
 	possibleHotspots.PrintToFile(params.outputDir + params.possibleHotspotsFile);
 	
 	if(!isPartial) {
