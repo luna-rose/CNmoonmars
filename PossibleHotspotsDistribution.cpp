@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cmath>
+#include <ctime>
 #include "PossibleHotspotsDistribution.h"
 
 PossibleHotspotsDistribution::PossibleHotspotsDistribution(std::vector<HotspotCoordsWithProbability>* points) :
@@ -68,9 +69,14 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots obse
 		pointCount += abcdDistribution->GetNumPoints();
 		chunkCount ++;
 		
+		time_t now = time(0);
+		struct std::tm* tstruct = localtime(&now);
+		char timebuff[512];
+		strftime(timebuff, sizeof(timebuff), "%a %F %T UTC%z", tstruct);
+		
 		char buff[1024];
-		sprintf(buff, "Chunk %4d of %4d,     Chunk points: %9ld,     Total points: %12ld\n",
-				chunkCount, numChunks, abcdDistribution->GetNumPoints(), pointCount);
+		sprintf(buff, "Chunk %4d of %4d,   Chunk points: %9ld,   Total points: %12ld,   %s\n",
+				chunkCount, numChunks, abcdDistribution->GetNumPoints(), pointCount, timebuff);
 		printf("%s",buff);
 		fflush(stdout);
 		
