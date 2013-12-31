@@ -75,7 +75,7 @@ PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots obse
 		strftime(timebuff, sizeof(timebuff), "%a %F %T UTC%z", tstruct);
 		
 		char buff[1024];
-		sprintf(buff, "Chunk %4d of %4d,   Chunk points: %9ld,   Total points: %12ld,   %s\n",
+		sprintf(buff, "Chunk %5d of %5d,   Chunk points: %9ld,   Total points: %12ld,   %s\n",
 				chunkCount, numChunks, abcdDistribution->GetNumPoints(), pointCount, timebuff);
 		printf("%s",buff);
 		fflush(stdout);
