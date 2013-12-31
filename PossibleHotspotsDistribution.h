@@ -14,7 +14,7 @@ public:
 	PossibleHotspotsDistribution(std::vector<HotspotCoordsWithProbability>* points);
 	PossibleHotspotsDistribution(AbcdSpaceLimits limits, bool nonremovable);
 	PossibleHotspotsDistribution(ObservedHotspots observedHotspots, AbcdSpaceLimits limits, RegenerateMatrix* regenMat,
-								 int gridRes, int increment, int interval, std::string directory="/dev/null", int startIndex=0, int endIndex=0);
+								 int gridRes, int increment, int interval, bool dedupObserved, std::string directory="/dev/null", int startIndex=0, int endIndex=0);
 	
 	void PrintToFile(std::string filename, bool printProbs = true);
 	Double GetTotalProbability(PossibleHotspotsDistribution points);
@@ -42,6 +42,7 @@ private:
 	int gridRes;
 	int increment;
 	int interval;
+	bool dedupObserved;
 };
 
 

@@ -1,6 +1,5 @@
 #include <fstream>
 #include <cstdlib>
-#include <cctype>
 #include <getopt.h>
 #include <sys/stat.h>
 #include "ObservedHotspots.h"
@@ -113,10 +112,10 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 					for(unsigned int i=0; i < argVal.size(); i++) {
 						argVal[i]=tolower(argVal[i]);
 					}
-					if(argVal.compare("false")==0 || argVal.compare("f")==0 || argVal.compare("0")==0) {
+					if(argVal == "false" || argVal == "f" || argVal == "0") {
 						params.deduplicateObserved = false;
 					}
-					else if(argVal.compare("true")==0 || argVal.compare("t")==0 || argVal.compare("1")==0) {
+					else if(argVal == "true" || argVal == "t" || argVal == "1") {
 						params.deduplicateObserved = true;
 					}
 					else {
@@ -245,7 +244,8 @@ int main(int argc, char* argv[]) {
 	}
 	
 	PossibleHotspotsDistribution possibleHotspots(observedHotspots, limits, regenMat, params.gridRes, params.increment, params.interval,
-												  params.outputDir + params.statusDir, params.startIndex, params.endIndex);
+												  params.deduplicateObserved, params.outputDir + params.statusDir,
+												  params.startIndex, params.endIndex);
 	possibleHotspots.PrintToFile(params.outputDir + params.possibleHotspotsFile);
 	
 	if(!isPartial) {

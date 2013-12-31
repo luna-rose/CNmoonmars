@@ -27,12 +27,14 @@ endIndex(0)
 }
 
 PossibleHotspotsDistribution::PossibleHotspotsDistribution(ObservedHotspots observedHotspots, AbcdSpaceLimits limits, RegenerateMatrix* regenMat,
-							int inGridRes, int inIncrement, int inInterval, std::string directory, int inStartIndex, int inEndIndex) :
+							int inGridRes, int inIncrement, int inInterval, bool inDedupObserved, std::string directory,
+							int inStartIndex, int inEndIndex) :
 	startIndex(inStartIndex),
 	endIndex(inEndIndex),
 	gridRes(inGridRes),
 	increment(inIncrement),
-	interval(inInterval)
+	interval(inInterval),
+	dedupObserved(inDedupObserved)
 {
 	ValidateIndexLimits(startIndex, endIndex);
 	CalculatePossibleHotspotCoords(limits);
@@ -221,11 +223,12 @@ void PossibleHotspotsDistribution::PrintToFile(std::string filename, bool printP
 	
 	if(IsPartial()) {
 		fprintf(file, "!! THIS IS A PARTIAL FILE !!\n");
-		fprintf(file, "START INDEX = %4d\n", startIndex);
-		fprintf(file, "END   INDEX = %4d\n", endIndex);
-		fprintf(file, "GRID  RES   = %4d\n", gridRes);
-		fprintf(file, "INCREMENT   = %4d\n", increment);
-		fprintf(file, "INTERVAL    = %4d\n\n", interval);
+		fprintf(file, "START INDEX = %7d\n", startIndex);
+		fprintf(file, "END   INDEX = %7d\n", endIndex);
+		fprintf(file, "GRID  RES   = %7d\n", gridRes);
+		fprintf(file, "INCREMENT   = %7d\n", increment);
+		fprintf(file, "INTERVAL    = %7d\n", interval);
+		fprintf(file, "DEDUP OBS   = %7s\n\n", dedupObserved ? "TRUE" : "FALSE");
 		fprintf(file, "PROBABILITIES ARE NOT NORMALIZED\n\n");
 	}
 	

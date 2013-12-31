@@ -19,6 +19,7 @@ struct PartialFile {
 	int gridRes;
 	int increment;
 	int interval;
+	std::string dedupObserved;
 };
 
 struct Params {
@@ -137,7 +138,7 @@ std::vector<HotspotCoordsWithProbability>* CombinePossibleHotspotFiles(std::vect
 		partialFiles.push_back(pFile);
 	}
 	
-	printf("%-30s%12s%12s%12s%12s%12s\n", "Directory", "Start Index", "End Index", "Grid Res", "Increment", "Interval");
+	printf("%-30s%12s%12s%12s%12s%12s%12s\n", "Directory", "Start Index", "End Index", "Grid Res", "Increment", "Interval", "Dedup Obs");
 	
 	//
 	// read headers
@@ -152,39 +153,73 @@ std::vector<HotspotCoordsWithProbability>* CombinePossibleHotspotFiles(std::vect
 			exit(EXIT_FAILURE);
 		}
 		
-		if(!fscanf(partialFile->fileStream, "START INDEX = %4d\n", &(partialFile->startIndex))) {
+		if(!fscanf(partialFile->fileStream, "START INDEX = %7d\n", &(partialFile->startIndex))) {
 			printf("Error: Could not read startIndex from file: \"%s\".\n", partialFile->filename.c_str());
 			exit(EXIT_FAILURE);
 		}
 		
-		if(!fscanf(partialFile->fileStream, "END   INDEX = %4d\n", &(partialFile->endIndex))) {
+		if(!fscanf(partialFile->fileStream, "END   INDEX = %7d\n", &(partialFile->endIndex))) {
 			printf("Error: Could not read endIndex from file: \"%s\".\n", partialFile->filename.c_str());
 			exit(EXIT_FAILURE);
 		}
 		
-		if(!fscanf(partialFile->fileStream, "GRID  RES   = %4d\n", &(partialFile->gridRes))) {
+		if(!fscanf(partialFile->fileStream, "GRID  RES   = %7d\n", &(partialFile->gridRes))) {
 			printf("Error: Could not read gridRes from file: \"%s\".\n", partialFile->filename.c_str());
 			exit(EXIT_FAILURE);
 		}
 		
-		if(!fscanf(partialFile->fileStream, "INCREMENT   = %4d\n", &(partialFile->increment))) {
+		if(!fscanf(partialFile->fileStream, "INCREMENT   = %7d\n", &(partialFile->increment))) {
 			printf("Error: Could not read increment from file: \"%s\".\n", partialFile->filename.c_str());
 			exit(EXIT_FAILURE);
 		}
 		
-		if(!fscanf(partialFile->fileStream, "INTERVAL    = %4d\n\n", &(partialFile->interval))) {
+		if(!fscanf(partialFile->fileStream, "INTERVAL    = %7d\n", &(partialFile->interval))) {
 			printf("Error: Could not read interval from file: \"%s\".\n", partialFile->filename.c_str());
 			exit(EXIT_FAILURE);
 		}
 		
-		if(fscanf(partialFile->fileStream, "PROBABILITIES ARE NOT NORMALIZED\n\n") != 0) {
-			printf("Error: Could not read \"PROBABILITIES ARE NOT NORMALIZED\" from file: \"%s\".\n",
+		partialFile->dedupObserved = "missing";
+		
+		char buff[1024];
+		fscanf(partialFile->fileStream, "%s", buff);
+		
+		if(strcmp(buff, "DEDUP") == 0) {
+			if(!fscanf(partialFile->fileStream, " OBS   = %7s\n\n", buff)) {
+				printf("Error: Could not read dedup obs from file: \"%s\".\n", partialFile->filename.c_str());
+				exit(EXIT_FAILURE);
+			}
+			
+			if (strcmp(buff, "TRUE") == 0) {
+				partialFile->dedupObserved = "true";
+			} else if (strcmp(buff, "FALSE") == 0) {
+				partialFile->dedupObserved = "false";
+			} else {
+				printf("Error: Invalid value for dedup obs in file \"%s\", string read: \"%s\".\n",
+					   partialFile->filename.c_str(), buff);
+				exit(EXIT_FAILURE);
+			}
+			
+			if(fscanf(partialFile->fileStream, "PROBABILITIES") != 0) {
+				printf("Error: Could not read \"PROBABILITIES\" from file: \"%s\".\n",
+					   partialFile->filename.c_str());
+				exit(EXIT_FAILURE);
+			}
+		} else if(strcmp(buff, "PROBABILITIES") != 0) {
+			printf("Error: Invalid token in file: \"%s\".  Expecting \"DEDUP\" or \"PROBABILITIES\".\n",
+				   partialFile->filename.c_str());
+			exit(EXIT_FAILURE);
+		}
+
+		
+		if(fscanf(partialFile->fileStream, " ARE NOT NORMALIZED\n\n") != 0) {
+			printf("Error: Could not read \" ARE NOT NORMALIZED\" from file: \"%s\".\n",
 				   partialFile->filename.c_str());
 			exit(EXIT_FAILURE);
 		}
 		
-		printf("%-30s%12d%12d%12d%12d%12d\n", (partialFile->directory).c_str(), partialFile->startIndex,
-			   partialFile->endIndex, partialFile->gridRes, partialFile->increment, partialFile->interval);
+		printf("%-30s%12d%12d%12d%12d%12d%12s\n", (partialFile->directory).c_str(), partialFile->startIndex,
+			   partialFile->endIndex, partialFile->gridRes, partialFile->increment, partialFile->interval,
+			   partialFile->dedupObserved.c_str());
 	}
 	printf("\n");
 	
@@ -200,6 +235,14 @@ std::vector<HotspotCoordsWithProbability>* CombinePossibleHotspotFiles(std::vect
 				initFile->gridRes, initFile->increment);
 			printf("%s has gridRes = %d, increment = %d\n", partialFile->filename.c_str(),
 				   partialFile->gridRes, partialFile->increment);
+			exit(EXIT_FAILURE);
+		}
+		if(partialFile->dedupObserved != initFile->dedupObserved) {
+			printf("Error: Incompatible files:\n");
+			printf("%s has deduplicateObserved = %s\n", initFile->filename.c_str(),
+				   initFile->dedupObserved.c_str());
+			printf("%s has deduplicateObserved = %s\n", partialFile->filename.c_str(),
+				   partialFile->dedupObserved.c_str());
 			exit(EXIT_FAILURE);
 		}
 	}
@@ -452,7 +495,7 @@ int main(int argc, char* argv[]) {
 	ParseArguments(argc, argv, params);
 	StandardizeDirectoryNames(params);
 	
-	printf("==========================================================================================\n");
+	printf("======================================================================================================\n");
 	
 	std::vector<std::string> partialDirs = GetPartialSubdirectories(params.resultsDir);
 	if (partialDirs.empty()) {
@@ -472,7 +515,7 @@ int main(int argc, char* argv[]) {
 		regenMat = new RegenerateMatrix(params.resultsDir + params.mFile);
 		printf("\n");
 	}
-	printf("------------------------------------------------------------------------------------------\n");
+	printf("------------------------------------------------------------------------------------------------------\n");
 	
 	std::vector<HotspotCoordsWithProbability>* possibleHotspotsVec;
 	possibleHotspotsVec = CombinePossibleHotspotFiles(partialDirs, params.resultsDir, params.possibleHotspotsFile, regenMat);
