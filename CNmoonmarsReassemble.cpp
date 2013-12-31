@@ -52,7 +52,7 @@ Params DefaultParams() {
 void ParseArguments(int argc, char* argv[], Params &params) {
 	static struct option long_options[] =
 	{
-		{"resultsDir",						required_argument, NULL, 130},
+		{"resultsDir",					required_argument, NULL, 130},
 		{"inputFile",					required_argument, NULL, 131},
 		{"limitsFile",					required_argument, NULL, 132},
 		{"abcdDistFile",				required_argument, NULL, 133},

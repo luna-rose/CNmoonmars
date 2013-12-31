@@ -54,3 +54,11 @@ bool HotspotCoords::operator==(HotspotCoords other) {
 bool HotspotCoords::operator!=(HotspotCoords other) {
 	return !(*this == other);
 }
+
+bool HotspotCoords::MakesRedundant(HotspotCoords other) {
+	return
+		(other.moonLat == moonLat || other.moonLat == MissingCoord) &&
+		(other.moonLong == moonLong || other.moonLong == MissingCoord) &&
+		(other.marsLat == marsLat || other.marsLat == MissingCoord) &&
+		(other.marsLong == marsLong || other.marsLong == MissingCoord);
+}

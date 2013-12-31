@@ -19,6 +19,7 @@ public:
 	static bool Compare(HotspotCoords a, HotspotCoords b);
 	bool operator==(HotspotCoords other);
 	bool operator!=(HotspotCoords other);
+	bool MakesRedundant(HotspotCoords other);
 	
 	static const Coord MissingCoord = SHRT_MAX;
 	

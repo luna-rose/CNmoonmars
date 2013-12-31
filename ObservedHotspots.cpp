@@ -54,6 +54,37 @@ void ObservedHotspots::Iterate(void (*function)(HotspotCoordsWithDate coord, voi
 	}
 }
 
+void ObservedHotspots::RemoveDuplicates() {
+	printf("Removing duplicate observations.\n");
+	
+	bool keepElem[observedHotspots.size()];
+	for (unsigned int i = 0; i < observedHotspots.size(); i++) {
+		keepElem[i] = true;
+	}
+	
+	std::vector<HotspotCoordsWithDate>::iterator currHotspot, otherHotspot;
+	for (unsigned int i = 0; i < observedHotspots.size(); i++) {
+		for (unsigned int j = 0; j < i; j++) {
+			if (observedHotspots[j].MakesRedundant(observedHotspots[i])) {
+				keepElem[i] = false;
+			} else if (observedHotspots[i].MakesRedundant(observedHotspots[j])) {
+				keepElem[j] = false;
+			}
+		}
+	}
+	
+	int offset = 0;
+	for (unsigned int i = 0; i < observedHotspots.size(); i++) {
+		if (keepElem[i]) {
+			observedHotspots[i-offset] = observedHotspots[i];
+		} else {
+			offset++;
+		}
+	}
+	
+	observedHotspots.resize(observedHotspots.size() - offset);
+}
+
 Coord ObservedHotspots::ScanCoordinate(FILE* file){
 	Coord result;
 	if(!fscanf(file, "%5hd", &result)){

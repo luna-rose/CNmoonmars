@@ -14,6 +14,8 @@ public:
 	
 	void Iterate(void (*function)(HotspotCoordsWithDate coord, void* data), void* data);
 	
+	void RemoveDuplicates();
+	
 private:
 	Coord ScanCoordinate(FILE* file);
 	

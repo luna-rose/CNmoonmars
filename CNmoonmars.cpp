@@ -1,5 +1,6 @@
 #include <fstream>
 #include <cstdlib>
+#include <cctype>
 #include <getopt.h>
 #include <sys/stat.h>
 #include "ObservedHotspots.h"
@@ -16,6 +17,7 @@ struct Params {
 	int gridRes;
 	int increment;
 	int interval;
+	bool deduplicateObserved;
 	
 	int startIndex;
 	int endIndex;
@@ -41,6 +43,8 @@ Params DefaultParams() {
 	params.increment = 1;
 	
 	params.interval = 1;
+	
+	params.deduplicateObserved = true;
 	
 	params.startIndex = 0;
 	params.endIndex = 0;
@@ -79,6 +83,7 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 		{"nonremovableHotspotsFile",	required_argument, NULL, 135},
 		{"nonremovableProbFile",		required_argument, NULL, 136},
 		{"mFile",						required_argument, NULL, 137},
+		{"deduplicateObserved",			required_argument, NULL, 138},
 		{0, 0, 0, 0}
 	};
 	
@@ -102,6 +107,24 @@ void ParseArguments(int argc, char* argv[], Params &params) {
 			case 135: params.nonremovableHotspotsFile = optarg; break;
 			case 136: params.nonremovableProbFile = optarg; break;
 			case 137: params.mFile = optarg; break;
+			case 138:
+				{
+					std::string argVal = optarg;
+					for(unsigned int i=0; i < argVal.size(); i++) {
+						argVal[i]=tolower(argVal[i]);
+					}
+					if(argVal.compare("false")==0 || argVal.compare("f")==0 || argVal.compare("0")==0) {
+						params.deduplicateObserved = false;
+					}
+					else if(argVal.compare("true")==0 || argVal.compare("t")==0 || argVal.compare("1")==0) {
+						params.deduplicateObserved = true;
+					}
+					else {
+						printf("Error: Invalid value for argument deduplicateObserved: \"%s\".\n", optarg);
+						exit(EXIT_FAILURE);
+					}
+				}
+				break;
 			default: 
 				printf("Error: Could not parse arguments.\n");
 				exit(EXIT_FAILURE);
@@ -167,6 +190,9 @@ int main(int argc, char* argv[]) {
 	printf("Input file is \"%s\".\n", infile.c_str());
 	
 	ObservedHotspots observedHotspots(infile);
+	if(params.deduplicateObserved){
+		observedHotspots.RemoveDuplicates();
+	}
 	observedHotspots.Iterate(PrintCoord, NULL);
 	printf("\n");
 	
