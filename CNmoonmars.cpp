@@ -136,7 +136,7 @@ void MakeDirectoryRecursive(std::string dirName) {
 	MakeDirectory(dirName);
 }
 
-void ModifyDirectoryName(std::string &dirName, int start, int end) {
+void AddPartialSubdirToPath(std::string &dirName, int start, int end) {
 	char buff[2048];
 	sprintf(buff, "%s%04d-%04d/", dirName.c_str(), start, end);
 	dirName = buff;
@@ -180,7 +180,7 @@ int main(int argc, char* argv[]) {
 	printf("\n");
 	
 	if(isPartial)
-		ModifyDirectoryName(params.outputDir, params.startIndex, params.endIndex);
+		AddPartialSubdirToPath(params.outputDir, params.startIndex, params.endIndex);
 	
 	MakeDirectoryRecursive(params.outputDir + params.statusDir);
 	
