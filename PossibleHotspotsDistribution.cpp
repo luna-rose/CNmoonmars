@@ -241,7 +241,12 @@ void PossibleHotspotsDistribution::PrintToFile(std::string filename, bool printP
 	
 	fclose(file);
 	
-	printf("Printed hotspots with probabilities to file: \"%s\".\n", filename.c_str());
+	if(printProbs)
+		printf("Printed hotspots with probabilities to file: \"%s\".\n", filename.c_str());
+	else {
+		printf("Printed hotspots to file: \"%s\".\n", filename.c_str());
+	}
+
 	if(IsPartial()) {
 		printf("Generated partial file from index %d to %d.\n", startIndex, endIndex);
 	}
